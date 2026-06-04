@@ -20,10 +20,14 @@ async function apiRequest<T>(
   options?: RequestInit
 ): Promise<{ ok: boolean; data: T; status: number }> {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
     const res = await fetch(`${API_BASE}${path}`, {
       headers: { 'Content-Type': 'application/json' },
       ...options,
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     const data = await res.json();
     return { ok: res.ok, data, status: res.status };
   } catch {
