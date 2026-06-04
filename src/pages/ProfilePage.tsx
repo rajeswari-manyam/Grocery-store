@@ -101,7 +101,6 @@ export default function ProfilePage() {
               ) : (
                 <>
                   <h1 className="text-xl font-bold text-slate-900 truncate">{displayName}</h1>
-                  <p className="text-sm text-slate-500">{displayPhone ? `+91 ${displayPhone}` : ''}</p>
                   {user?.email || profile.email ? <p className="text-xs text-slate-400 truncate">{user?.email || profile.email}</p> : null}
                 </>
               )}
