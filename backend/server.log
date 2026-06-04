@@ -1,0 +1,21 @@
+
+🚀 MANYAM MART - Backend Server
+📡 Running on http://localhost:3001
+📋 API Endpoints:
+   GET    /api/products
+   GET    /api/products/:id
+   POST   /api/products (admin)
+   PUT    /api/products/:id (admin)
+   DELETE /api/products/:id (admin)
+   GET    /api/orders
+   GET    /api/orders/:id
+   POST   /api/orders
+   PUT    /api/orders/:id/status (admin)
+   POST   /api/auth/login
+   POST   /api/auth/register
+   POST   /api/auth/admin-login
+   GET    /api/auth/me
+   GET    /api/status
+   GET    /api/qr
+   POST   /api/send-whatsapp
+   POST   /api/send-catalog
