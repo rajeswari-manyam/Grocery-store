@@ -25,7 +25,7 @@ async function apiRequest<T>(
 ): Promise<{ ok: boolean; data: T; status: number }> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
+    const timeout = setTimeout(() => controller.abort(), 15000);
     const res = await fetch(`${API_BASE}${path}`, {
       headers: { 'Content-Type': 'application/json' },
       ...options,
@@ -51,10 +51,6 @@ function readStorage(): Product[] {
   }
 }
 
-function writeStorage(products: Product[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-}
-
 export async function fetchProducts(): Promise<Product[]> {
   const { ok, data } = await apiRequest<Product[]>('/products');
   if (ok && Array.isArray(data)) return data;
@@ -67,12 +63,7 @@ export async function createProduct(input: ProductInput): Promise<Product> {
     body: JSON.stringify(input),
   });
   if (ok && data) return data;
-  const products = readStorage();
-  const id = `p${Date.now()}`;
-  const product: Product = { ...input, id };
-  products.push(product);
-  writeStorage(products);
-  return product;
+  throw new Error('Failed to save product to server. Check that the backend is running.');
 }
 
 export async function updateProduct(id: string, input: Partial<Product>): Promise<Product> {
@@ -81,12 +72,7 @@ export async function updateProduct(id: string, input: Partial<Product>): Promis
     body: JSON.stringify(input),
   });
   if (ok && data) return data;
-  const products = readStorage();
-  const index = products.findIndex(p => p.id === id);
-  if (index === -1) throw new Error('Product not found');
-  products[index] = { ...products[index], ...input };
-  writeStorage(products);
-  return products[index];
+  throw new Error('Failed to update product on server. Check that the backend is running.');
 }
 
 export async function deleteProduct(id: string): Promise<void> {
@@ -94,9 +80,7 @@ export async function deleteProduct(id: string): Promise<void> {
     method: 'DELETE',
   });
   if (ok) return;
-  let products = readStorage();
-  products = products.filter(p => p.id !== id);
-  writeStorage(products);
+  throw new Error('Failed to delete product on server. Check that the backend is running.');
 }
 
 export async function fetchOrders(phone?: string): Promise<any[]> {

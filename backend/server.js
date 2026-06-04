@@ -16,7 +16,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+const allowedOrigins = [
+  'https://grocery-store-q4eh.onrender.com',
+  'https://grocery-store-admin-df6f.onrender.com',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3001',
+];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(null, true);
+  },
+  credentials: true,
+}));
+app.options('*', cors());
 app.use(express.json());
 
 app.use('/api/products', productRoutes);

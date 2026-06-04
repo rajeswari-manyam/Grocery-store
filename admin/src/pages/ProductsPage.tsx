@@ -93,8 +93,14 @@ export default function AdminProductsPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = (id: string, name: string) => {
-    if (window.confirm(`Delete "${name}"?`)) removeProduct(id);
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Delete "${name}"?`)) {
+      try {
+        await removeProduct(id);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : 'Failed to delete product');
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,7 +121,7 @@ export default function AdminProductsPage() {
       }
       setModalOpen(false);
     } catch (err) {
-      console.error('Failed to save product:', err);
+      alert(err instanceof Error ? err.message : 'Failed to save product');
     }
   };
 
