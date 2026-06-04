@@ -269,7 +269,10 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
                   { label: 'Shop All', href: '/products', icon: null },
                   { label: 'My Orders', href: '/orders', icon: null },
                   { label: 'Cart', href: '/cart', icon: null },
-                  { label: 'Profile', href: '/profile', icon: 'profile' },
+                  ...(isLoggedIn
+                    ? [{ label: 'Profile', href: '/profile', icon: 'profile' as const }]
+                    : [{ label: 'Login', href: '/login', icon: 'profile' as const }]
+                  ),
                 ].map(({ label, href, icon }) => (
                   <button
                     key={label}
