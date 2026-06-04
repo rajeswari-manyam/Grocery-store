@@ -115,7 +115,7 @@ function initClient() {
   client.initialize();
 }
 
-initClient();
+try { initClient(); } catch (e) { console.log('⚠️ WhatsApp client unavailable (expected on Render/headless environments):', e.message); }
 
 app.get('/api/status', (_, res) => {
   res.json({

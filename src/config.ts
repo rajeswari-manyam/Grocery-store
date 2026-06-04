@@ -3,7 +3,7 @@ export const SITE_CONFIG = {
   businessOwnerWhatsApp: '7095652428',
   siteUrl: 'https://grocery-store-one-sigma.vercel.app',
   siteName: 'MANYAM MART',
-  backendUrl: 'http://localhost:3001',
+  backendUrl: 'https://grocery-store-q4eh.onrender.com',
   upiId: 'manyamgrains@upi',
   freeDeliveryMin: 199,
   deliveryCharge: 29,
