@@ -9,6 +9,9 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [loading, setLoading] = useState(false);
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
+  const [otpError, setOtpError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
   const loc = useLocation();
@@ -19,13 +22,23 @@ export default function LoginPage() {
     if (phone.length < 10) return;
     setLoading(true);
     await new Promise(r => setTimeout(r, 800));
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    setGeneratedOtp(otp);
+    console.log(`[OTP for +91${phone}] Your OTP is: ${otp}`);
     setLoading(false);
     setStep('otp');
+    setShowOtp(true);
+    setTimeout(() => setShowOtp(false), 10000);
   };
 
   const verifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length < 4) return;
+    if (otp !== generatedOtp) {
+      setOtpError('Invalid OTP. Please try again.');
+      return;
+    }
+    setOtpError('');
     setLoading(true);
     await new Promise(r => setTimeout(r, 600));
     login(phone);
@@ -113,6 +126,13 @@ export default function LoginPage() {
                   <p className="text-sm text-slate-500 mt-2">
                     Code sent to <span className="font-semibold text-slate-700">+91 {phone}</span>
                   </p>
+                  {showOtp && (
+                    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                      <p className="text-xs text-amber-700 font-semibold mb-1">📋 OTP for testing:</p>
+                      <p className="text-lg font-bold text-amber-900 tracking-[0.3em]">{generatedOtp}</p>
+                      <p className="text-[10px] text-amber-500 mt-1">Also logged in browser console (Ctrl+Shift+J)</p>
+                    </motion.div>
+                  )}
                 </div>
 
                 <div>
@@ -121,11 +141,14 @@ export default function LoginPage() {
                     type="text"
                     inputMode="numeric"
                     value={otp}
-                    onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    onChange={e => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpError(''); }}
                     placeholder="Enter 6-digit OTP"
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-700 text-center text-lg tracking-[0.5em] font-bold focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                     autoFocus
                   />
+                  {otpError && (
+                    <p className="text-xs text-red-500 mt-1.5 text-center">{otpError}</p>
+                  )}
                 </div>
 
                 <button
