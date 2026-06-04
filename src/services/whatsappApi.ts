@@ -1,16 +1,23 @@
 import { SITE_CONFIG } from '../config';
 
-const BACKEND_URL = SITE_CONFIG.backendUrl;
+const BACKEND_URLS = [SITE_CONFIG.backendUrl, SITE_CONFIG.localBackendUrl];
 const PENDING_QUEUE_KEY = 'manyam_pending_whatsapp';
 
-export async function isBackendAvailable(): Promise<boolean> {
+async function checkBackend(url: string): Promise<boolean> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/status`, { signal: AbortSignal.timeout(2000) });
+    const res = await fetch(`${url}/api/status`, { signal: AbortSignal.timeout(2000) });
     const data = await res.json();
     return data.connected === true;
   } catch {
     return false;
   }
+}
+
+export async function isBackendAvailable(): Promise<boolean> {
+  for (const url of BACKEND_URLS) {
+    if (await checkBackend(url)) return true;
+  }
+  return false;
 }
 
 function getPendingQueue(): { to: string; message: string; reason: string }[] {
@@ -45,19 +52,21 @@ export async function flushPendingMessages(): Promise<number> {
 
   let sent = 0;
   for (const item of queue) {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/send-whatsapp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: item.to, message: item.message }),
-      });
-      if (res.ok) {
-        sent++;
-        console.log(`[WA] Flushed pending message to ${item.to} (${item.reason})`);
-      }
-    } catch (err) {
-      console.error(`[WA] Flush failed for ${item.to}:`, err);
+    for (const url of BACKEND_URLS) {
+      try {
+        const res = await fetch(`${url}/api/send-whatsapp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: item.to, message: item.message }),
+        });
+        if (res.ok) {
+          sent++;
+          console.log(`[WA] Flushed pending message to ${item.to} via ${url}`);
+          break;
+        }
+      } catch {}
     }
+    if (!sent) console.error(`[WA] Flush failed for ${item.to}`);
   }
 
   const remaining = queue.slice(sent);
@@ -67,16 +76,17 @@ export async function flushPendingMessages(): Promise<number> {
 }
 
 async function trySend(to: string, message: string): Promise<boolean> {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/send-whatsapp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to, message }),
-    });
-    return res.ok;
-  } catch {
-    return false;
+  for (const url of BACKEND_URLS) {
+    try {
+      const res = await fetch(`${url}/api/send-whatsapp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, message }),
+      });
+      if (res.ok) return true;
+    } catch {}
   }
+  return false;
 }
 
 export async function sendWhatsAppMessage(to: string, message: string): Promise<{ sent: boolean; method: 'backend' | 'queued' }> {

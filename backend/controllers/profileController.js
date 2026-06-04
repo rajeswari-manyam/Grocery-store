@@ -19,11 +19,11 @@ export function updateProfile(req, res) {
 
 export function addAddress(req, res) {
   if (!req.userPhone) return res.status(401).json({ error: 'Unauthorized' });
-  const { label, line1, line2, city, pincode, isDefault } = req.body;
+  const { label, name, phone, line1, line2, city, pincode, isDefault } = req.body;
   if (!label || !line1 || !city || !pincode) {
     return res.status(400).json({ error: 'label, line1, city, and pincode are required' });
   }
-  const address = store.addUserAddress(req.userPhone, { label, line1, line2: line2 || '', city, pincode, isDefault: isDefault || false });
+  const address = store.addUserAddress(req.userPhone, { label, name: name || '', phone: phone || '', line1, line2: line2 || '', city, pincode, isDefault: isDefault || false });
   res.status(201).json(address);
 }
 

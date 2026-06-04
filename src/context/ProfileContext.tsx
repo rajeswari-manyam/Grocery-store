@@ -6,6 +6,8 @@ import { useAuth } from './AuthContext';
 export interface Address {
   id: string;
   label: string;
+  name: string;
+  phone: string;
   line1: string;
   line2: string;
   city: string;
@@ -35,12 +37,23 @@ const defaultProfile: UserProfile = {
   name: '', phone: '', email: '', addresses: [],
 };
 
+function migrateAddresses(profile: UserProfile): UserProfile {
+  return {
+    ...profile,
+    addresses: profile.addresses.map(a => ({
+      ...a,
+      name: 'name' in a ? a.name : '',
+      phone: 'phone' in a ? a.phone : '',
+    })),
+  };
+}
+
 const ProfileContext = createContext<ProfileContextType | null>(null);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile>(() =>
-    getFromStorage<UserProfile>(STORAGE_KEY, defaultProfile)
+    migrateAddresses(getFromStorage<UserProfile>(STORAGE_KEY, defaultProfile))
   );
 
   useEffect(() => {
@@ -51,12 +64,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     if (user?.phone) {
       fetchProfile().then(backendProfile => {
         if (backendProfile) {
-          setProfile({
+          setProfile(migrateAddresses({
             name: backendProfile.name || '',
             phone: backendProfile.phone || user.phone,
             email: backendProfile.email || '',
             addresses: backendProfile.addresses || [],
-          });
+          }));
         }
       }).catch(() => {});
     }

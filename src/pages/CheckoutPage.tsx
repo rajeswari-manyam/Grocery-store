@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, CreditCard, ChevronRight, CheckCircle, Wallet, Building2, DollarSign, Clock, MessageCircle, Plus } from 'lucide-react';
+import { MapPin, CreditCard, ChevronRight, CheckCircle, Wallet, Building2, DollarSign, Plus } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartDrawer from '../components/CartDrawer';
@@ -30,8 +30,6 @@ export default function CheckoutPage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [orderId, setOrderId] = useState('');
-  const [waStatus, setWaStatus] = useState<'sending' | 'sent' | 'queued' | null>(null);
-  const [notifyMsg, setNotifyMsg] = useState('');
   const [payment, setPayment] = useState<PaymentMethod>('cod');
   const [form, setForm] = useState({
     name: profile.name || '',
@@ -44,6 +42,8 @@ export default function CheckoutPage() {
   const [showNewAddrForm, setShowNewAddrForm] = useState(false);
   const [newAddr, setNewAddr] = useState({
     label: 'Home',
+    name: '',
+    phone: '',
     line1: '',
     line2: '',
     city: '',
@@ -58,6 +58,8 @@ export default function CheckoutPage() {
   const loadAddress = (addr: Address) => {
     setForm(f => ({
       ...f,
+      name: addr.name || f.name,
+      phone: addr.phone || f.phone,
       address: `${addr.line1}${addr.line2 ? `, ${addr.line2}` : ''}`,
       city: addr.city,
       pincode: addr.pincode,
@@ -76,6 +78,8 @@ export default function CheckoutPage() {
     if (!newAddr.line1 || !newAddr.city || !newAddr.pincode) return;
     addAddress({
       label: newAddr.label,
+      name: newAddr.name,
+      phone: newAddr.phone,
       line1: newAddr.line1,
       line2: newAddr.line2,
       city: newAddr.city,
@@ -89,7 +93,7 @@ export default function CheckoutPage() {
       pincode: newAddr.pincode,
     }));
     setShowNewAddrForm(false);
-    setNewAddr({ label: 'Home', line1: '', line2: '', city: '', pincode: '', saveAddress: false });
+    setNewAddr({ label: 'Home', name: '', phone: '', line1: '', line2: '', city: '', pincode: '', saveAddress: false });
   };
 
   const handlePlaceOrder = async () => {
@@ -113,19 +117,6 @@ export default function CheckoutPage() {
 
     clearCart();
     setPlaced(true);
-    setWaStatus('sending');
-
-    const bizMsg =
-      `🛒 *NEW ORDER - ${SITE_CONFIG.siteName}* 🛒\n\n` +
-      `Order: ${id}\n` +
-      `Date: ${new Date().toLocaleString('en-IN')}\n\n` +
-      `*Items:*\n${itemList}\n\n` +
-      `*Total: ${formatPrice(total)}*\n` +
-      `*Payment: ${paymentLabel}*\n\n` +
-      `*Customer:* ${form.name}\n` +
-      `*Phone:* ${form.phone}\n` +
-      `*Address:* ${form.address}, ${form.city} — ${form.pincode}`;
-    setNotifyMsg(bizMsg);
 
     notifyBusinessOrder({
       id,
@@ -138,7 +129,7 @@ export default function CheckoutPage() {
       city: form.city,
       pincode: form.pincode,
       location: userLocStr,
-    }).then(r => setWaStatus(r.sent ? 'sent' : 'queued'));
+    });
 
     sendOrderConfirmationToCustomer(form.phone, {
       id,
@@ -172,25 +163,6 @@ export default function CheckoutPage() {
             <p className="text-slate-500 mb-2">Your order has been confirmed.</p>
             <p className="text-sm text-slate-400 mb-3">We'll confirm your order via WhatsApp shortly!</p>
             <p className="text-xs text-slate-400 mb-3">Payment: <span className="font-medium">{payment === 'cod' ? 'Cash on Delivery' : payment === 'upi' ? `UPI (${SITE_CONFIG.upiId})` : 'Netbanking'}</span></p>
-            {waStatus === 'queued' && (
-              <div className="mb-8">
-                <p className="text-xs text-amber-500 flex items-center justify-center gap-1 mb-3">
-                  <Clock size={12} /> Auto-send unavailable — notify business manually
-                </p>
-                <a
-                  href={`https://wa.me/${SITE_CONFIG.businessWhatsApp.replace(/\D/g, '')}?text=${encodeURIComponent(notifyMsg)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-all"
-                >
-                  <MessageCircle size={16} />
-                  Notify Business on WhatsApp
-                </a>
-              </div>
-            )}
-            {waStatus === 'sent' && (
-              <p className="text-xs text-emerald-500 mb-8">✅ WhatsApp notification sent to business</p>
-            )}
             <div className="flex gap-3 justify-center">
               <button onClick={() => navigate('/orders')} className="px-6 py-3 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold transition-all border-none cursor-pointer">View Orders</button>
               <button onClick={() => navigate('/')} className="px-6 py-3 rounded-full border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-all bg-transparent cursor-pointer">Continue Shopping</button>
@@ -244,6 +216,8 @@ export default function CheckoutPage() {
                               <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Default</span>
                             )}
                           </div>
+                          {a.name && <p className="text-sm font-medium text-slate-800">{a.name}</p>}
+                          {a.phone && <p className="text-xs text-slate-500">{a.phone}</p>}
                           <p className="text-sm text-slate-700">{a.line1}{a.line2 ? `, ${a.line2}` : ''}</p>
                           <p className="text-xs text-slate-400">{a.city} — {a.pincode}</p>
                         </div>
@@ -278,6 +252,18 @@ export default function CheckoutPage() {
                           </button>
                         ))}
                       </div>
+                      <input
+                        placeholder="Full Name"
+                        value={newAddr.name}
+                        onChange={e => setNewAddr(f => ({ ...f, name: e.target.value }))}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                      />
+                      <input
+                        placeholder="Phone Number"
+                        value={newAddr.phone}
+                        onChange={e => setNewAddr(f => ({ ...f, phone: e.target.value }))}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                      />
                       <input
                         placeholder="Address Line 1"
                         value={newAddr.line1}
@@ -328,7 +314,7 @@ export default function CheckoutPage() {
                             } else {
                               setSelectedAddrId(null);
                               setShowNewAddrForm(false);
-                              setNewAddr({ label: 'Home', line1: '', line2: '', city: '', pincode: '', saveAddress: false });
+                              setNewAddr({ label: 'Home', name: '', phone: '', line1: '', line2: '', city: '', pincode: '', saveAddress: false });
                             }
                           }}
                           disabled={!newAddr.line1 || !newAddr.city || !newAddr.pincode}
@@ -337,7 +323,7 @@ export default function CheckoutPage() {
                           Use This Address
                         </button>
                         <button
-                          onClick={() => { setShowNewAddrForm(false); setNewAddr({ label: 'Home', line1: '', line2: '', city: '', pincode: '', saveAddress: false }); }}
+                          onClick={() => { setShowNewAddrForm(false); setNewAddr({ label: 'Home', name: '', phone: '', line1: '', line2: '', city: '', pincode: '', saveAddress: false }); }}
                           className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all bg-transparent cursor-pointer"
                         >
                           Cancel

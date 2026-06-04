@@ -192,6 +192,8 @@ export interface ProfileData {
   addresses: {
     id: string;
     label: string;
+    name: string;
+    phone: string;
     line1: string;
     line2: string;
     city: string;

@@ -167,9 +167,7 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-all bg-transparent border-none cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <span className="text-sm font-bold text-emerald-700">
-                    {(user?.name || user?.phone || 'U')[0].toUpperCase()}
-                  </span>
+                  <User size={16} className="text-emerald-700" />
                 </div>
                 <span className="hidden sm:block text-sm font-medium text-slate-700 max-w-[80px] truncate">
                   {user?.name || 'Profile'}
@@ -267,19 +265,28 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
 
               <div className="flex-1 overflow-y-auto px-4 py-4">
                 {[
-                  { label: 'Home', href: '/' },
-                  { label: 'Shop All', href: '/products' },
-                  { label: 'My Orders', href: '/orders' },
-                  { label: 'Cart', href: '/cart' },
-                  { label: 'Profile', href: '/profile' },
-                ].map(({ label, href }) => (
+                  { label: 'Home', href: '/', icon: null },
+                  { label: 'Shop All', href: '/products', icon: null },
+                  { label: 'My Orders', href: '/orders', icon: null },
+                  { label: 'Cart', href: '/cart', icon: null },
+                  { label: 'Profile', href: '/profile', icon: 'profile' },
+                ].map(({ label, href, icon }) => (
                   <button
                     key={label}
                     onClick={() => goTo(href)}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-[15px] font-medium transition-all bg-transparent border-none cursor-pointer mb-1 ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[15px] font-medium transition-all bg-transparent border-none cursor-pointer mb-1 ${
                       routeLocation.pathname === href ? 'text-emerald-700 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
+                    {icon === 'profile' && isLoggedIn ? (
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                        <User size={15} className="text-emerald-700" />
+                      </div>
+                    ) : icon === 'profile' ? (
+                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                        <User size={15} className="text-slate-500" />
+                      </div>
+                    ) : null}
                     {label}
                   </button>
                 ))}

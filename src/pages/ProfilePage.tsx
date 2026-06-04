@@ -23,7 +23,7 @@ export default function ProfilePage() {
   const [form, setForm] = useState({ name: user?.name || profile.name, phone: user?.phone || profile.phone, email: user?.email || profile.email });
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<string | null>(null);
-  const [addrForm, setAddrForm] = useState({ label: '', line1: '', line2: '', city: '', pincode: '', isDefault: false });
+  const [addrForm, setAddrForm] = useState({ label: '', line1: '', line2: '', city: '', pincode: '', isDefault: false, name: '', phone: '' });
 
   const saveProfile = () => {
     updateProfile(form);
@@ -32,13 +32,13 @@ export default function ProfilePage() {
   };
 
   const openNewAddress = () => {
-    setAddrForm({ label: '', line1: '', line2: '', city: '', pincode: '', isDefault: false });
+    setAddrForm({ label: '', line1: '', line2: '', city: '', pincode: '', isDefault: false, name: '', phone: '' });
     setEditingAddress(null);
     setShowAddressForm(true);
   };
 
   const openEditAddress = (a: Address) => {
-    setAddrForm({ label: a.label, line1: a.line1, line2: a.line2, city: a.city, pincode: a.pincode, isDefault: a.isDefault });
+    setAddrForm({ label: a.label, line1: a.line1, line2: a.line2, city: a.city, pincode: a.pincode, isDefault: a.isDefault, name: a.name || '', phone: a.phone || '' });
     setEditingAddress(a.id);
     setShowAddressForm(true);
   };
@@ -161,6 +161,8 @@ export default function ProfilePage() {
                           </span>
                         )}
                       </div>
+                      {a.name && <p className="text-sm font-medium text-slate-800">{a.name}</p>}
+                      {a.phone && <p className="text-xs text-slate-500">{a.phone}</p>}
                       <p className="text-sm text-slate-600">{a.line1}{a.line2 ? `, ${a.line2}` : ''}</p>
                       <p className="text-sm text-slate-500">{a.city} — {a.pincode}</p>
                       <div className="flex items-center gap-2 mt-2">
@@ -202,6 +204,8 @@ export default function ProfilePage() {
                       ))}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input value={addrForm.name} onChange={e => setAddrForm(f => ({ ...f, name: e.target.value }))} placeholder="Full Name" className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 bg-white" />
+                      <input value={addrForm.phone} onChange={e => setAddrForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone Number" className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 bg-white" />
                       <input value={addrForm.line1} onChange={e => setAddrForm(f => ({ ...f, line1: e.target.value }))} placeholder="Address Line 1" className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 bg-white" />
                       <input value={addrForm.line2} onChange={e => setAddrForm(f => ({ ...f, line2: e.target.value }))} placeholder="Address Line 2 (optional)" className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 bg-white" />
                       <input value={addrForm.city} onChange={e => setAddrForm(f => ({ ...f, city: e.target.value }))} placeholder="City" className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 bg-white" />

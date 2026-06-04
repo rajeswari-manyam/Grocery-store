@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import pkg from 'whatsapp-web.js';
 const { Client, LocalAuth } = pkg;
 import qrcode from 'qrcode-terminal';
@@ -10,6 +12,7 @@ import orderRoutes from './routes/orders.js';
 import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profile.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -20,6 +23,9 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+
+const distPath = path.join(__dirname, '..', 'dist');
+app.use(express.static(distPath));
 
 let client = null;
 let connected = false;
@@ -70,52 +76,73 @@ function initClient() {
     console.log(`📩 Incoming from ${from}: ${message.body}`);
 
     try {
-      if (['hi', 'hello', 'hey', 'hii', 'hy'].includes(text)) {
-        const reply =
+      const firstWord = text.split(/[\s!?.]+/)[0];
+
+      let reply;
+
+      if (['hi', 'hello', 'hey', 'hii', 'hy', 'hlo'].includes(firstWord)) {
+        reply =
           `👋 *Welcome to MANYAM MART!* 🛒\n\n` +
           `Thanks for reaching out! 🙏\n\n` +
-          `🛒 *Browse our catalog:* https://grocery-store-one-sigma.vercel.app\n\n` +
-          `Reply with:\n` +
-          `• *help* — See all commands\n` +
-          `• *track* — Track your order\n` +
-          `• *catalog* — Get product links\n\n` +
+          `🛒 *Browse our catalog:* https://grocery-store-q4eh.onrender.com\n\n` +
+          `👉 *Reply with:* Catalog, Track Order, or Help\n\n` +
           `Happy shopping! 🎉`;
-        await message.reply(reply);
-        console.log(`✅ Auto-replied to greeting from ${from}`);
       } else if (text === 'help') {
-        const reply =
+        reply =
           `🤖 *MANYAM MART Commands*\n\n` +
-          `• *catalog* — Get the product catalog link\n` +
-          `• *track* — Track your order\n` +
-          `• *order* — Check order status\n` +
-          `• *help* — Show this menu\n\n` +
-          `🛒 Shop online: https://grocery-store-one-sigma.vercel.app`;
-        await message.reply(reply);
-      } else if (text === 'catalog') {
-        const reply =
+          `👉 *Catalog* — Get the product catalog link\n` +
+          `👉 *Track Order* — Track your order\n` +
+          `👉 *Help* — Show this menu\n\n` +
+          `🛒 Shop online: https://grocery-store-q4eh.onrender.com`;
+      } else if (text === 'catalog' || /\bcatalog\b/.test(text)) {
+        reply =
           `🛒 *MANYAM MART Catalog*\n\n` +
           `Shop all our products here:\n` +
-          `https://grocery-store-one-sigma.vercel.app\n\n` +
+          `https://grocery-store-q4eh.onrender.com\n\n` +
           `🌾 Millets | 🍚 Rice | 🌾 Flours\n` +
           `🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
-        await message.reply(reply);
-      } else if (text === 'track' || text === 'track order') {
-        const reply =
+      } else if (/^track/.test(text)) {
+        reply =
           `📦 *Track Your Order*\n\n` +
           `To track your order, please visit:\n` +
-          `https://grocery-store-one-sigma.vercel.app/orders\n\n` +
-          `Or reply with your *order ID* and we'll look it up for you!`;
-        await message.reply(reply);
+          `https://grocery-store-q4eh.onrender.com/orders\n\n` +
+          `Or reply with your *order ID* and I'll look it up!`;
+      } else if (/\b(browse|shop|product)\b/.test(text)) {
+        reply =
+          `🛒 *Browse our products:* https://grocery-store-q4eh.onrender.com/products\n\n` +
+          `🌾 Millets | 🍚 Rice | 🌾 Flours\n` +
+          `🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
+      } else {
+        reply =
+          `Hi there! 👋\n\n` +
+          `🛒 *Shop now:* https://grocery-store-q4eh.onrender.com\n\n` +
+          `Reply *help* for available commands.`;
       }
+
+      await message.reply(reply);
+      console.log(`✅ Replied to ${from}`);
     } catch (err) {
       console.error(`❌ Auto-reply failed for ${from}:`, err.message);
     }
   });
 
-  client.initialize();
+  client.initialize().catch(err => {
+    console.error('❌ WhatsApp client initialize failed:', err.message);
+    connected = false;
+    lastError = `Init failed: ${err.message}`;
+  });
 }
 
-try { initClient(); } catch (e) { console.log('⚠️ WhatsApp client unavailable (expected on Render/headless environments):', e.message); }
+console.log('⏳ Initializing WhatsApp client (this may take 10-30 seconds)...');
+try { initClient(); } catch (e) { console.log('⚠️ WhatsApp client unavailable:', e.message); }
+
+setTimeout(() => {
+  if (!connected && !qrCode) {
+    console.log('⏱️ Still initializing after 15s — checking status...');
+    console.log('   Last error:', lastError || 'none');
+    console.log('   Try deleting the .wwebjs_auth folder and restarting');
+  }
+}, 15000);
 
 app.get('/api/status', (_, res) => {
   res.json({
@@ -170,7 +197,7 @@ app.post('/api/send-catalog', async (req, res) => {
   const message =
     `👋 *Welcome to MANYAM MART!* 🛒\n\n` +
     `Thank you for your interest. Here's our complete product catalog:\n\n` +
-    `🛒 *Shop Now:* https://grocery-store-one-sigma.vercel.app\n\n` +
+    `🛒 *Shop Now:* https://grocery-store-q4eh.onrender.com\n\n` +
     `Browse our range of:\n` +
     `🌾 Millets & Healthy Grains\n` +
     `🍚 Rice Varieties\n` +
@@ -183,6 +210,20 @@ app.post('/api/send-catalog', async (req, res) => {
 
   req.body.message = message;
   return app.handle(req, res, 'send-whatsapp');
+});
+
+app.get('*', (_, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
+process.on('SIGINT', () => {
+  console.log('\n👋 Shutting down...');
+  if (client) client.destroy();
+  process.exit();
+});
+process.on('SIGTERM', () => {
+  if (client) client.destroy();
+  process.exit();
 });
 
 app.listen(PORT, () => {
