@@ -125,9 +125,7 @@ export default function WhatsAppChat() {
             style={{ maxHeight: 'min(600px, calc(100vh - 120px))' }}
           >
             <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-4 flex items-center gap-3 flex-shrink-0">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <MessageCircle size={20} className="text-white" />
-              </div>
+              <img src="/logo.jpeg" alt="MANYAM MART" className="w-10 h-10 rounded-full object-cover border-2 border-white/30" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-white text-sm">MANYAM MART</h3>
                 <p className="text-[11px] text-emerald-100">

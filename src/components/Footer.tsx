@@ -1,4 +1,4 @@
-import { Wheat, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -7,9 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center">
-                <Wheat size={16} className="text-white" />
-              </div>
+              <img src="/logo.jpeg" alt="MANYAM MART" className="w-8 h-8 rounded-lg object-cover" />
               <span className="text-white text-lg font-bold">MANYAM MART</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">

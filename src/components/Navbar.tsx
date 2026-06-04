@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Search, Menu, X, Wheat, MapPin, ChevronDown, User, Navigation } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, MapPin, ChevronDown, User, Navigation } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -62,9 +62,7 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
               className="flex items-center gap-2 bg-transparent border-none cursor-pointer flex-shrink-0"
               onClick={() => goTo('/')}
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-700 to-emerald-500 flex items-center justify-center shadow-md shadow-emerald-200">
-                <Wheat size={20} className="text-white" />
-              </div>
+              <img src="/logo.jpeg" alt="MANYAM MART" className="w-9 h-9 rounded-xl object-cover shadow-md shadow-emerald-200" />
               <div className="hidden sm:block">
                 <span className="text-slate-900 text-lg font-bold tracking-tight">MANYAM</span>
                 <span className="text-emerald-700 text-lg font-bold tracking-tight">MART</span>
@@ -252,9 +250,7 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
             >
               <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center">
-                    <Wheat size={16} className="text-white" />
-                  </div>
+                  <img src="/logo.jpeg" alt="MANYAM MART" className="w-8 h-8 rounded-lg object-cover" />
                   <span className="font-bold text-slate-900 text-lg">MANYAM MART</span>
                 </div>
                 <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 bg-transparent border-none cursor-pointer">

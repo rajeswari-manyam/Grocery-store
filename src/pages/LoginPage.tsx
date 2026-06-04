@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, Lock, ArrowLeft, Wheat } from 'lucide-react';
+import { Phone, Lock, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
@@ -55,9 +55,7 @@ export default function LoginPage() {
           </button>
         )}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-            <Wheat size={16} className="text-white" />
-          </div>
+          <img src="/logo.jpeg" alt="MANYAM MART" className="w-8 h-8 rounded-lg object-cover" />
           <span className="font-bold text-slate-900 text-lg">MANYAM MART</span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Wheat, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SITE_CONFIG } from '../../config';
 
@@ -54,9 +54,7 @@ export default function AdminLoginPage() {
         className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8"
       >
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-400 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
-            <Wheat size={32} className="text-white" />
-          </div>
+          <img src="/logo.jpeg" alt="MANYAM MART" className="w-16 h-16 rounded-2xl mx-auto mb-4 shadow-lg shadow-emerald-200 object-cover" />
           <h1 className="text-2xl font-bold text-slate-900">Admin Login</h1>
           <p className="text-sm text-slate-400 mt-1">MANYAM MART - Admin Portal</p>
         </div>

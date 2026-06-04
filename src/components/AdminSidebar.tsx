@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingBag, Users, LogOut, Wheat, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Users, LogOut, ArrowLeft } from 'lucide-react';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -20,9 +20,7 @@ export default function AdminSidebar() {
   return (
     <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0">
       <div className="flex items-center gap-3 px-6 h-16 border-b border-slate-700">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center">
-          <Wheat size={20} className="text-white" />
-        </div>
+        <img src="/logo.jpeg" alt="MANYAM MART" className="w-9 h-9 rounded-xl object-cover" />
         <div>
           <p className="text-sm font-bold tracking-tight">MANYAM MART</p>
           <p className="text-[10px] text-emerald-300 font-medium">Admin Portal</p>
