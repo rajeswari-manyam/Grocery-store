@@ -138,7 +138,7 @@ export async function notifyBusinessOrder(order: {
     `*User Location:* ${order.location}\n\n` +
     `Website: ${SITE_CONFIG.siteUrl}`;
 
-  return sendWhatsAppMessage(SITE_CONFIG.businessOwnerWhatsApp, message);
+  return sendWhatsAppMessage(SITE_CONFIG.businessWhatsApp, message);
 }
 
 export async function sendOrderConfirmationToCustomer(customerPhone: string, order: {
@@ -170,7 +170,7 @@ export async function sendTrackingToBusiness(orderId: string, trackingInfo: stri
     `*Timeline:*\n${trackingInfo}\n\n` +
     `Need help? Reply to this message.`;
 
-  return sendWhatsAppMessage(SITE_CONFIG.businessOwnerWhatsApp, message);
+  return sendWhatsAppMessage(SITE_CONFIG.businessWhatsApp, message);
 }
 
 export async function sendCustomerQueryToBusiness(customerPhone: string, query: string): Promise<{ sent: boolean; method: 'backend' | 'queued' }> {
@@ -180,5 +180,5 @@ export async function sendCustomerQueryToBusiness(customerPhone: string, query: 
     `Message: "${query}"\n\n` +
     `Reply to this message to respond to the customer.`;
 
-  return sendWhatsAppMessage(SITE_CONFIG.businessOwnerWhatsApp, message);
+  return sendWhatsAppMessage(SITE_CONFIG.businessWhatsApp, message);
 }
