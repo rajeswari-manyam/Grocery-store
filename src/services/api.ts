@@ -1,4 +1,4 @@
-import { type Product, products as defaultProducts } from '../data/products';
+import { type Product } from '../data/products';
 import { SITE_CONFIG } from '../config';
 
 const API_BASE = `${SITE_CONFIG.backendUrl}/api`;
@@ -34,19 +34,12 @@ async function apiRequest<T>(
 function readStorage(): Product[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      writeStorage(defaultProducts);
-      return defaultProducts;
-    }
+    if (!raw) return [];
     const data = JSON.parse(raw);
-    if (!Array.isArray(data)) {
-      writeStorage(defaultProducts);
-      return defaultProducts;
-    }
+    if (!Array.isArray(data)) return [];
     return data as Product[];
   } catch {
-    writeStorage(defaultProducts);
-    return defaultProducts;
+    return [];
   }
 }
 
