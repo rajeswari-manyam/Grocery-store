@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, Clock, MapPin, CreditCard, ChevronDown, ChevronUp, Search } from 'lucide-react';
-import { formatPrice } from '../../utils/formatPrice';
-import * as api from '../../services/api';
-import ProductImage from '../../components/ui/ProductImage';
+import { formatPrice } from '../utils/formatPrice';
+import * as api from '../services/api';
+import ProductImage from '../components/ui/ProductImage';
 
 const paymentLabels: Record<string, string> = {
   cod: 'Cash on Delivery', upi: 'UPI', netbanking: 'Netbanking',

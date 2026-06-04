@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Smartphone, Mail, MapPin } from 'lucide-react';
-import { SITE_CONFIG } from '../../config';
+import { SITE_CONFIG } from '../config';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([]);

@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit3, Trash2, X, Upload } from 'lucide-react';
-import { useProducts } from '../../context/ProductContext';
-import { formatPrice } from '../../utils/formatPrice';
-import { compressImage } from '../../utils/compressImage';
-import ProductImage from '../../components/ui/ProductImage';
+import { useProducts } from '../context/ProductContext';
+import { formatPrice } from '../utils/formatPrice';
+import { compressImage } from '../utils/compressImage';
+import ProductImage from '../components/ui/ProductImage';
 
 const categories = [
   { id: 'millets', name: 'Millets & Healthy Grains', icon: '🌾' },

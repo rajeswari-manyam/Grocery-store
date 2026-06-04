@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { SITE_CONFIG } from '../../config';
+import { SITE_CONFIG } from '../config';
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
@@ -30,14 +30,14 @@ export default function AdminLoginPage() {
       const data = await res.json();
       if (res.ok && data.token) {
         sessionStorage.setItem('admin-auth', 'true');
-        navigate('/admin');
+        navigate('/');
       } else {
         setError(data.error || 'Invalid credentials');
       }
     } catch {
       if (username === 'admin' && password === 'admin123') {
         sessionStorage.setItem('admin-auth', 'true');
-        navigate('/admin');
+        navigate('/');
       } else {
         setError('Invalid credentials');
       }

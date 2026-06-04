@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 import { Package, ShoppingBag, Users, IndianRupee, TrendingUp, AlertCircle } from 'lucide-react';
-import { useProducts } from '../../context/ProductContext';
-import { formatPrice } from '../../utils/formatPrice';
+import { useProducts } from '../context/ProductContext';
+import { formatPrice } from '../utils/formatPrice';
 import { useEffect, useState } from 'react';
-import * as api from '../../services/api';
-import ProductImage from '../../components/ui/ProductImage';
+import * as api from '../services/api';
+import ProductImage from '../components/ui/ProductImage';
 
 function StatCard({ icon: Icon, label, value, sub, color }: {
   icon: typeof Package; label: string; value: string; sub?: string; color: string;
