@@ -51,6 +51,25 @@ const FALLBACK_CITIES = [
 
 export { FALLBACK_CITIES };
 
+async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+      { headers: { 'Accept-Language': 'en' } }
+    );
+    const data = await res.json();
+    const addr = data?.address;
+    const city = addr?.city || addr?.town || addr?.village || addr?.state_district || addr?.county;
+    if (!city) return null;
+    const match = FALLBACK_CITIES.find(
+      c => city.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(city.toLowerCase())
+    );
+    return match || city;
+  } catch {
+    return null;
+  }
+}
+
 export function LocationProvider({ children }: { children: ReactNode }) {
   const [location, setLoc] = useState<UserLocation | null>(() => loadLocation());
   const [isLoading, setIsLoading] = useState(false);
@@ -79,8 +98,10 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLoc({ city: 'Bangalore', area: 'Current Location', lat: pos.coords.latitude, lng: pos.coords.longitude });
+      async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const city = await reverseGeocode(lat, lng);
+        setLoc({ city: city || 'Bangalore', area: 'Current Location', lat, lng });
         setIsLoading(false);
         setShowPrompt(false);
       },
