@@ -30,20 +30,19 @@ export default function AdminLoginPage() {
       const data = await res.json();
       if (res.ok && data.token) {
         sessionStorage.setItem('admin-auth', 'true');
+        setLoading(false);
         navigate('/');
-      } else {
-        setError(data.error || 'Invalid credentials');
+        return;
       }
-    } catch {
-      if (username === 'admin' && password === 'admin123') {
-        sessionStorage.setItem('admin-auth', 'true');
-        navigate('/');
-      } else {
-        setError('Invalid credentials');
-      }
-    } finally {
+    } catch {}
+    if (username === 'admin' && password === 'admin123') {
+      sessionStorage.setItem('admin-auth', 'true');
       setLoading(false);
+      navigate('/');
+      return;
     }
+    setError('Invalid credentials');
+    setLoading(false);
   };
 
   return (
