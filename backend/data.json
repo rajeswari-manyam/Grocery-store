@@ -1,5 +1,15 @@
 {
   "products": [],
   "orders": [],
-  "users": []
+  "users": [
+    {
+      "id": "u1",
+      "phone": "9999999999",
+      "name": "Admin",
+      "email": "admin@manyammart.com",
+      "role": "admin",
+      "password": "admin123",
+      "addresses": []
+    }
+  ]
 }
