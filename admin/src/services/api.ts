@@ -19,6 +19,14 @@ interface Product {
 
 type ProductInput = Omit<Product, 'id'>;
 
+function getAdminHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (sessionStorage.getItem('admin-auth')) {
+    headers['Authorization'] = 'Bearer admin-token';
+  }
+  return headers;
+}
+
 async function apiRequest<T>(
   path: string,
   options?: RequestInit
@@ -27,8 +35,9 @@ async function apiRequest<T>(
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     const res = await fetch(`${API_BASE}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options,
+      method: options?.method,
+      body: options?.body,
+      headers: { ...getAdminHeaders(), ...(options?.headers as Record<string, string> || {}) },
       signal: controller.signal,
     });
     clearTimeout(timeout);

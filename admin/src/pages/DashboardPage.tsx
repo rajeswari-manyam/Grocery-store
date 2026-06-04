@@ -39,20 +39,20 @@ export default function AdminDashboardPage() {
   const recentOrders = [...orders].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+    <div className="p-4 sm:p-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Dashboard</h1>
         <p className="text-sm text-slate-500 mt-1">Overview of your store</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
         <StatCard icon={Package} label="Total Products" value={String(products.length)} sub={`${products.filter(p => p.inStock).length} in stock`} color="bg-emerald-600" />
         <StatCard icon={ShoppingBag} label="Total Orders" value={String(orders.length)} color="bg-blue-600" />
         <StatCard icon={IndianRupee} label="Total Revenue" value={formatPrice(totalRevenue)} color="bg-amber-600" />
         <StatCard icon={Users} label="Registered Users" value={String(0)} color="bg-purple-600" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h2 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
             <TrendingUp size={18} className="text-emerald-600" />

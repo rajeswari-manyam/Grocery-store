@@ -131,13 +131,13 @@ export default function AdminProductsPage() {
   const filtered = filterCat === 'all' ? products : products.filter(p => p.category === filterCat);
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Products</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Products</h1>
           <p className="text-sm text-slate-500 mt-1">{products.length} products</p>
         </div>
-        <button onClick={openAdd} className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm border-none cursor-pointer">
+        <button onClick={openAdd} className="flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm border-none cursor-pointer">
           <Plus size={16} /> Add Product
         </button>
       </div>
