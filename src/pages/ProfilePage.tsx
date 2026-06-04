@@ -54,8 +54,7 @@ export default function ProfilePage() {
   };
 
   const displayName = user?.name || profile.name || 'User';
-  const displayPhone = user?.phone || profile.phone;
-  const initial = displayName !== 'User' ? displayName[0].toUpperCase() : (displayPhone?.[0] || 'U');
+  const initial = displayName !== 'User' ? displayName[0].toUpperCase() : 'U';
 
   if (!isLoggedIn) {
     return (
