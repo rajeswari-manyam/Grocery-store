@@ -39,21 +39,107 @@ app.use('/api/profile', profileRoutes);
 const distPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(distPath));
 
-app.get('/api/status', (_, res) => {
-  res.json({ connected: false, hasQr: false, error: null, phone: null });
-});
+try {
+  const { Client, LocalAuth } = await import('whatsapp-web.js');
+  const qrcode = await import('qrcode-terminal');
+
+  let client = null;
+  let connected = false;
+  let qrCode = null;
+  let lastError = null;
+
+  function initClient() {
+    client = new Client({
+      authStrategy: new LocalAuth(),
+      puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] },
+    });
+
+    client.on('qr', (qr) => {
+      qrCode = qr;
+      connected = false;
+      console.log('\n🔐 WhatsApp QR Code (scan with your phone):');
+      qrcode.default.generate(qr, { small: true });
+    });
+
+    client.on('ready', () => {
+      connected = true;
+      qrCode = null;
+      lastError = null;
+      console.log('✅ WhatsApp client connected!');
+      console.log(`📱 Phone: ${client.info?.pushname || 'Unknown'}`);
+    });
+
+    client.on('disconnected', (reason) => {
+      connected = false;
+      lastError = `Disconnected: ${reason}`;
+      console.log(`❌ WhatsApp disconnected: ${reason}`);
+      setTimeout(() => {
+        try { client.initialize(); } catch {}
+      }, 10000);
+    });
+
+    client.on('auth_failure', (msg) => {
+      connected = false;
+      lastError = `Auth failure: ${msg}`;
+    });
+
+    client.on('message', async (message) => {
+      const text = message.body.toLowerCase().trim();
+      const from = message.from;
+      try {
+        const firstWord = text.split(/[\s!?.]+/)[0];
+        let reply;
+        if (['hi', 'hello', 'hey', 'hii', 'hy', 'hlo'].includes(firstWord)) {
+          reply = `👋 *Welcome to MANYAM MART!* 🛒\n\nThanks for reaching out! 🙏\n\n🛒 *Browse our catalog:* https://grocery-store-q4eh.onrender.com\n\n👉 *Reply with:* Catalog, Track Order, or Help\n\nHappy shopping! 🎉`;
+        } else if (text === 'help') {
+          reply = `🤖 *MANYAM MART Commands*\n\n👉 *Catalog* — Get the product catalog link\n👉 *Track Order* — Track your order\n👉 *Help* — Show this menu\n\n🛒 Shop online: https://grocery-store-q4eh.onrender.com`;
+        } else if (text === 'catalog' || /\bcatalog\b/.test(text)) {
+          reply = `🛒 *MANYAM MART Catalog*\n\nShop all our products here:\nhttps://grocery-store-q4eh.onrender.com\n\n🌾 Millets | 🍚 Rice | 🌾 Flours\n🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
+        } else if (/^track/.test(text)) {
+          reply = `📦 *Track Your Order*\n\nTo track your order, please visit:\nhttps://grocery-store-q4eh.onrender.com/orders\n\nOr reply with your *order ID* and I'll look it up!`;
+        } else if (/\b(browse|shop|product)\b/.test(text)) {
+          reply = `🛒 *Browse our products:* https://grocery-store-q4eh.onrender.com/products\n\n🌾 Millets | 🍚 Rice | 🌾 Flours\n🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
+        } else {
+          reply = `Hi there! 👋\n\n🛒 *Shop now:* https://grocery-store-q4eh.onrender.com\n\nReply *help* for available commands.`;
+        }
+        await message.reply(reply);
+        console.log(`✅ Replied to ${from}`);
+      } catch (err) {
+        console.error(`❌ Auto-reply failed for ${from}:`, err.message);
+      }
+    });
+
+    client.initialize().catch(err => {
+      console.error('❌ WhatsApp client initialize failed:', err.message);
+      connected = false;
+      lastError = `Init failed: ${err.message}`;
+    });
+  }
+
+  initClient();
+
+  app.get('/api/status', (_, res) => {
+    res.json({ connected, hasQr: !!qrCode, error: lastError, phone: client?.info?.pushname || null });
+  });
+
+  app.get('/api/qr', (_, res) => {
+    if (qrCode) res.json({ qr: qrCode });
+    else if (connected) res.json({ connected: true });
+    else res.json({ qr: null });
+  });
+} catch {
+  console.log('⚠️ WhatsApp client packages not available — auto-reply disabled.');
+  app.get('/api/status', (_, res) => {
+    res.json({ connected: false, hasQr: false, error: null, phone: null });
+  });
+}
 
 app.get('*', (_, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-process.on('SIGINT', () => {
-  console.log('\n👋 Shutting down...');
-  process.exit();
-});
-process.on('SIGTERM', () => {
-  process.exit();
-});
+process.on('SIGINT', () => { process.exit(); });
+process.on('SIGTERM', () => { process.exit(); });
 
 app.listen(PORT, () => {
   console.log(`\n🚀 MANYAM MART - Backend Server`);
@@ -71,15 +157,13 @@ app.listen(PORT, () => {
   console.log(`   POST   /api/auth/login`);
   console.log(`   POST   /api/auth/register`);
   console.log(`   POST   /api/auth/admin-login`);
-   console.log(`   GET    /api/auth/me`);
-   console.log(`   GET    /api/auth/users`);
-   console.log(`   GET    /api/profile`);
-   console.log(`   PUT    /api/profile`);
-   console.log(`   POST   /api/profile/addresses`);
-   console.log(`   PUT    /api/profile/addresses/:id`);
-   console.log(`   DELETE /api/profile/addresses/:id`);
-   console.log(`   GET    /api/status`);
+  console.log(`   GET    /api/auth/me`);
+  console.log(`   GET    /api/auth/users`);
+  console.log(`   GET    /api/profile`);
+  console.log(`   PUT    /api/profile`);
+  console.log(`   POST   /api/profile/addresses`);
+  console.log(`   PUT    /api/profile/addresses/:id`);
+  console.log(`   DELETE /api/profile/addresses/:id`);
+  console.log(`   GET    /api/status`);
   console.log(`   GET    /api/qr`);
-  console.log(`   POST   /api/send-whatsapp`);
-  console.log(`   POST   /api/send-catalog`);
 });
