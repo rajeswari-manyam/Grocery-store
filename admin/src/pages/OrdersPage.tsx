@@ -54,7 +54,7 @@ export default function AdminOrdersPage() {
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {['all', ...statusOptions].map(s => (
-            <button key={s} onClick={() => setStatusFilter(s)} className={`text-xs font-semibold px-3 py-2 rounded-full border transition-all bg-transparent cursor-pointer flex-shrink-0 ${statusFilter === s ? 'bg-emerald-700 text-white border-emerald-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}>
+            <button key={s} onClick={() => setStatusFilter(s)} className={`text-xs font-semibold px-3 py-2 rounded-full border-2 transition-all cursor-pointer flex-shrink-0 ${statusFilter === s ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'}`}>
               {s === 'all' ? 'All' : s}
             </button>
           ))}
@@ -63,7 +63,11 @@ export default function AdminOrdersPage() {
 
       <div className="space-y-4">
         {filtered.length === 0 ? (
-          <div className="text-center py-16 text-slate-400 text-sm">No orders found.</div>
+          <div className="text-center py-16">
+            <div className="text-4xl mb-3">{search || statusFilter !== 'all' ? '🔍' : '📋'}</div>
+            <p className="text-base font-semibold text-slate-500">No orders found</p>
+            <p className="text-sm text-slate-400 mt-1">{search ? 'Try a different search term.' : statusFilter !== 'all' ? `No orders with status "${statusFilter}".` : 'No orders have been placed yet.'}</p>
+          </div>
         ) : (
           filtered.map((order: any) => (
             <motion.div key={order.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-slate-100 overflow-hidden">

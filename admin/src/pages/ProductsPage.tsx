@@ -143,9 +143,9 @@ export default function AdminProductsPage() {
       </div>
 
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        <button onClick={() => setFilterCat('all')} className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all bg-transparent cursor-pointer flex-shrink-0 ${filterCat === 'all' ? 'bg-emerald-700 text-white border-emerald-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}>All</button>
+        <button onClick={() => setFilterCat('all')} className={`text-xs font-semibold px-4 py-2 rounded-full border-2 transition-all cursor-pointer flex-shrink-0 ${filterCat === 'all' ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'}`}>All</button>
         {categories.map(c => (
-          <button key={c.id} onClick={() => setFilterCat(c.id)} className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all bg-transparent cursor-pointer flex-shrink-0 ${filterCat === c.id ? 'bg-emerald-700 text-white border-emerald-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}>{c.icon} {c.name.split(' ')[0]}</button>
+          <button key={c.id} onClick={() => setFilterCat(c.id)} className={`text-xs font-semibold px-4 py-2 rounded-full border-2 transition-all cursor-pointer flex-shrink-0 ${filterCat === c.id ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'}`}>{c.icon} {c.name.split(' ')[0]}</button>
         ))}
       </div>
 
@@ -198,7 +198,11 @@ export default function AdminProductsPage() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={5} className="px-5 py-12 text-center text-slate-400 text-sm">No products found.</td></tr>
+                <tr><td colSpan={5} className="px-5 py-16 text-center">
+                  <div className="text-4xl mb-3">{filterCat === 'all' ? '📦' : '🔍'}</div>
+                  <p className="text-base font-semibold text-slate-500">No products found</p>
+                  <p className="text-sm text-slate-400 mt-1">{filterCat === 'all' ? 'Add your first product to get started.' : `No products in this category.`}</p>
+                </td></tr>
               )}
             </tbody>
           </table>
