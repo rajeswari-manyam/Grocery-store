@@ -3,7 +3,7 @@ export const SITE_CONFIG = {
   businessOwnerWhatsApp: '7095652428',
   siteUrl: 'https://grocery-store-q4eh.onrender.com',
   siteName: 'MANYAM MART',
-  backendUrl: 'https://grocery-store-q4eh.onrender.com',
+  backendUrl: 'https://backend-ddr6.onrender.com',
   localBackendUrl: 'http://localhost:3001',
   upiId: 'manyamgrains@upi',
   freeDeliveryMin: 199,
