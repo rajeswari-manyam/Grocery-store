@@ -4,6 +4,8 @@ import { userAuth, adminAuth } from '../middleware/auth.js';
 
 const router = Router();
 
+router.post('/send-otp', ctrl.sendOtp);
+router.post('/verify-otp', ctrl.verifyOtp);
 router.post('/login', ctrl.login);
 router.post('/register', ctrl.register);
 router.post('/admin-login', ctrl.adminLogin);

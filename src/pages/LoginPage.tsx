@@ -3,13 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Lock, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { SITE_CONFIG } from '../config';
 
 export default function LoginPage() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [loading, setLoading] = useState(false);
-  const [generatedOtp, setGeneratedOtp] = useState('');
   const [showOtp, setShowOtp] = useState(false);
   const [otpError, setOtpError] = useState('');
   const { login } = useAuth();
@@ -21,10 +21,23 @@ export default function LoginPage() {
     e.preventDefault();
     if (phone.length < 10) return;
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-    setGeneratedOtp(otp);
-    console.log(`[OTP for +91${phone}] Your OTP is: ${otp}`);
+    try {
+      const res = await fetch(`${SITE_CONFIG.backendUrl}/api/auth/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.error || 'Failed to send OTP');
+        setLoading(false);
+        return;
+      }
+    } catch {
+      alert('Network error. Please check backend connection.');
+      setLoading(false);
+      return;
+    }
     setLoading(false);
     setStep('otp');
     setShowOtp(true);
@@ -34,13 +47,25 @@ export default function LoginPage() {
   const verifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length < 4) return;
-    if (otp !== generatedOtp) {
-      setOtpError('Invalid OTP. Please try again.');
-      return;
-    }
     setOtpError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
+    try {
+      const res = await fetch(`${SITE_CONFIG.backendUrl}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setOtpError(data.error || 'Invalid OTP');
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setOtpError('Network error. Please try again.');
+      setLoading(false);
+      return;
+    }
     login(phone);
     setLoading(false);
     navigate(from, { replace: true });
@@ -125,10 +150,8 @@ export default function LoginPage() {
                     Code sent to <span className="font-semibold text-slate-700">+91 {phone}</span>
                   </p>
                   {showOtp && (
-                    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-center">
-                      <p className="text-xs text-amber-700 font-semibold mb-1">📋 OTP for testing:</p>
-                      <p className="text-lg font-bold text-amber-900 tracking-[0.3em]">{generatedOtp}</p>
-                      <p className="text-[10px] text-amber-500 mt-1">Also logged in browser console (Ctrl+Shift+J)</p>
+                    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
+                      <p className="text-sm text-emerald-700 font-semibold">✅ OTP sent to your phone</p>
                     </motion.div>
                   )}
                 </div>
