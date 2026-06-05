@@ -37,8 +37,8 @@ export function FlashSaleSection() {
               View All <ArrowRight size={14} />
             </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {flashProducts.slice(0, 4).map((product, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
+            {flashProducts.slice(0, 5).map((product, i) => (
               <ProductCard key={product.id} product={product} index={i} />
             ))}
           </div>
@@ -68,7 +68,7 @@ export function FeaturedProductsSection() {
               <p className="text-sm text-slate-400">Most ordered millets and staples this week</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
             {featured.map((product, i) => (
               <ProductCard key={product.id} product={product} index={i} />
             ))}
