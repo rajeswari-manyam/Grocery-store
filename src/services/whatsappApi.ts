@@ -1,24 +1,16 @@
 import { SITE_CONFIG } from '../config';
 
-const BACKEND_URLS = [SITE_CONFIG.backendUrl, SITE_CONFIG.localBackendUrl];
-
-async function sendViaBackend(to: string, message: string): Promise<boolean> {
-  for (const url of BACKEND_URLS) {
-    try {
-      const res = await fetch(`${url}/api/whatsapp/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to, message }),
-      });
-      if (res.ok) return true;
-    } catch {}
-  }
-  return false;
+function openWhatsApp(phone: string, message: string): boolean {
+  const cleaned = phone.replace(/\D/g, '');
+  const fullPhone = cleaned.length === 10 ? `91${cleaned}` : cleaned;
+  const url = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+  return true;
 }
 
 export async function sendWhatsAppMessage(to: string, message: string): Promise<{ sent: boolean; method: 'backend' | 'queued' }> {
-  const ok = await sendViaBackend(to, message);
-  return { sent: ok, method: ok ? 'backend' : 'queued' };
+  const ok = openWhatsApp(to, message);
+  return { sent: ok, method: 'backend' };
 }
 
 export async function notifyBusinessOrder(order: {
