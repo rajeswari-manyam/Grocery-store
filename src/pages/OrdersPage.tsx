@@ -63,7 +63,7 @@ function generateTrackingTimeline(orderDate: string, orderId: string) {
 }
 
 function OrderCard({ order }: { order: Order }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const tracking = generateTrackingTimeline(order.date, order.id);
 
   const trackOnWhatsApp = async () => {
@@ -71,19 +71,12 @@ function OrderCard({ order }: { order: Order }) {
       .filter(s => s.reached)
       .map(s => `✓ ${s.label}${s.time ? ` at ${s.time}` : ''}`)
       .join('\n');
-
     await sendTrackingToBusiness(order.id, timelineText);
   };
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  };
-
-  const paymentLabels: Record<string, string> = {
-    cod: 'Cash on Delivery',
-    upi: 'UPI',
-    netbanking: 'Netbanking',
   };
 
   return (
@@ -128,7 +121,9 @@ function OrderCard({ order }: { order: Order }) {
         <div className="flex items-center gap-3 overflow-x-auto pb-1">
           {order.items.slice(0, 5).map(item => (
             <div key={item.product.id} className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2 flex-shrink-0">
-              <ProductImage image={item.product.image} name={item.product.name} textSize="text-lg" />
+              <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                <ProductImage image={item.product.image} name={item.product.name} textSize="text-lg" />
+              </div>
               <div>
                 <p className="text-xs font-medium text-slate-700">{item.product.name}</p>
                 <p className="text-[10px] text-slate-400">x{item.quantity}</p>
@@ -142,11 +137,11 @@ function OrderCard({ order }: { order: Order }) {
 
         <div className="flex items-center gap-3 mt-3">
           <button
-            onClick={() => setExpanded(expanded === order.id ? null : order.id)}
+            onClick={() => setExpanded(!expanded)}
             className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium transition-colors bg-transparent border-none cursor-pointer"
           >
-            {expanded === order.id ? 'Hide Details' : 'View Details'}
-            {expanded === order.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {expanded ? 'Hide Details' : 'View Details'}
+            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
 
           <button
@@ -159,7 +154,7 @@ function OrderCard({ order }: { order: Order }) {
         </div>
       </div>
 
-      {expanded === order.id && (
+      {expanded && (
         <motion.div
           initial={{ height: 0 }}
           animate={{ height: 'auto' }}
@@ -171,7 +166,9 @@ function OrderCard({ order }: { order: Order }) {
               {order.items.map(item => (
                 <div key={item.product.id} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <ProductImage image={item.product.image} name={item.product.name} textSize="text-base" />
+                    <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
+                      <ProductImage image={item.product.image} name={item.product.name} textSize="text-base" />
+                    </div>
                     <span className="text-slate-700">{item.product.name}</span>
                     <span className="text-xs text-slate-400">{item.product.unit}</span>
                   </div>
@@ -264,7 +261,6 @@ export default function OrdersPage() {
       .filter(s => s.reached)
       .map(s => `✓ ${s.label}${s.time ? ` at ${s.time}` : ''}`)
       .join('\n');
-
     await sendTrackingToBusiness(order.id, timelineText);
   };
 
@@ -338,7 +334,9 @@ export default function OrdersPage() {
                       <div className="flex items-center gap-3 overflow-x-auto pb-1">
                         {order.items.slice(0, 5).map(item => (
                           <div key={item.product.id} className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2 flex-shrink-0">
-                            <ProductImage image={item.product.image} name={item.product.name} textSize="text-lg" />
+                            <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                              <ProductImage image={item.product.image} name={item.product.name} textSize="text-lg" />
+                            </div>
                             <div>
                               <p className="text-xs font-medium text-slate-700">{item.product.name}</p>
                               <p className="text-[10px] text-slate-400">x{item.quantity}</p>
@@ -381,7 +379,9 @@ export default function OrdersPage() {
                             {order.items.map(item => (
                               <div key={item.product.id} className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                  <ProductImage image={item.product.image} name={item.product.name} textSize="text-base" />
+                                  <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
+                                    <ProductImage image={item.product.image} name={item.product.name} textSize="text-base" />
+                                  </div>
                                   <span className="text-slate-700">{item.product.name}</span>
                                   <span className="text-xs text-slate-400">{item.product.unit}</span>
                                 </div>
