@@ -27,9 +27,6 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Company</h4>
             <ul className="space-y-2 text-sm">
               <li><span className="cursor-pointer hover:text-white transition-colors">About Us</span></li>
-              <li><span className="cursor-pointer hover:text-white transition-colors">Our Farmers</span></li>
-              <li><span className="cursor-pointer hover:text-white transition-colors">Blog</span></li>
-              <li><span className="cursor-pointer hover:text-white transition-colors">Press</span></li>
             </ul>
           </div>
           <div>
