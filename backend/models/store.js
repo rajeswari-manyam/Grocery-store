@@ -40,6 +40,13 @@ const defaultProducts = [
 
 let data = null;
 
+function normalizeProducts(products) {
+  return products.map(p => ({
+    ...p,
+    images: p.images || (p.image ? [p.image] : []),
+  }));
+}
+
 function load() {
   if (data) return data;
   try {
@@ -47,12 +54,13 @@ function load() {
       const raw = fs.readFileSync(DATA_FILE, 'utf-8');
       data = JSON.parse(raw);
       if (!data.products || !data.orders || !data.users) throw new Error('Invalid schema');
+      data.products = normalizeProducts(data.products);
     } else {
       throw new Error('No data file');
     }
   } catch {
     data = {
-      products: [...defaultProducts],
+      products: normalizeProducts([...defaultProducts]),
       orders: [],
       users: [
         { id: 'u1', phone: '9999999999', name: 'Admin', email: 'admin@manyammart.com', role: 'admin', password: 'admin123', addresses: [] },

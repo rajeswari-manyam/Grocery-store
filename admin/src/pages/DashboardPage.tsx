@@ -66,7 +66,7 @@ export default function AdminDashboardPage() {
                 <div key={p.id} className="flex items-center gap-3">
                   <span className="text-xs font-bold text-slate-400 w-5">{i + 1}.</span>
                   <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <ProductImage image={p.image} name={p.name} className="w-full h-full object-cover" textSize="text-xl" />
+                    <ProductImage image={p.images?.[0] || p.image} name={p.name} className="w-full h-full object-cover" textSize="text-xl" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-700 truncate">{p.name}</p>

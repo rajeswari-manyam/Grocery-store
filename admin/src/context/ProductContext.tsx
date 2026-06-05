@@ -8,6 +8,7 @@ interface Product {
   price: number;
   originalPrice: number | null;
   image: string;
+  images?: string[];
   unit: string;
   description: string;
   inStock: boolean;

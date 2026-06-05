@@ -286,3 +286,9 @@ export function isEmojiImage(image: string): boolean {
   if (!image) return true;
   return !image.startsWith('http') && !image.startsWith('data:');
 }
+
+export function getProductImages(product: { image?: string; images?: string[] }): string[] {
+  if (product.images && product.images.length > 0) return product.images;
+  if (product.image) return [product.image];
+  return [];
+}

@@ -17,56 +17,66 @@ const categories = [
 
 interface FormProduct {
   name: string; category: string; price: number; originalPrice: string;
-  image: string; unit: string; description: string; inStock: boolean; isFlashSale: boolean; discount: string;
+  images: string[]; unit: string; description: string; inStock: boolean; isFlashSale: boolean; discount: string;
 }
 
 const emptyForm: FormProduct = {
   name: '', category: 'millets', price: 0, originalPrice: '',
-  image: '', unit: '', description: '', inStock: true, isFlashSale: false, discount: '',
+  images: [], unit: '', description: '', inStock: true, isFlashSale: false, discount: '',
 };
 
-function ImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+function ImageUpload({ value, onChange }: { value: string[]; onChange: (urls: string[]) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) return;
+    if (value.length >= 5) return;
+    let url: string;
     try {
       const compressed = await compressImage(file);
-      onChange(compressed);
+      url = compressed;
     } catch {
-      const reader = new FileReader();
-      reader.onload = (e) => onChange(e.target?.result as string);
-      reader.readAsDataURL(file);
+      url = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+      });
     }
+    onChange([...value, url]);
+  };
+
+  const removeImage = (index: number) => {
+    onChange(value.filter((_, i) => i !== index));
   };
 
   return (
-    <div
-      onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
-      onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-      onDragLeave={() => setDragOver(false)}
-      onClick={() => inputRef.current?.click()}
-      className={`relative col-span-2 flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all ${
-        dragOver ? 'border-emerald-400 bg-emerald-50' : value ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
-      }`}
-    >
-      {value ? (
-        <div className="relative w-full">
-          <img src={value} alt="Preview" className="w-full h-40 object-contain rounded-lg" />
-          <button type="button" onClick={e => { e.stopPropagation(); onChange(''); }} className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 text-slate-600 hover:text-red-500 shadow-sm border-none cursor-pointer">
-            <X size={14} />
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
-            <Upload size={22} className="text-slate-400" />
+    <div className="col-span-2">
+      <label className="block text-xs font-semibold text-slate-500 mb-1.5">Product Images (up to 5)</label>
+      <div className="grid grid-cols-5 gap-2">
+        {value.map((img, i) => (
+          <div key={i} className="relative aspect-square rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+            <img src={img} alt={`Product ${i + 1}`} className="w-full h-full object-contain" />
+            <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 p-1 rounded-full bg-white/90 text-slate-500 hover:text-red-500 shadow-sm border-none cursor-pointer">
+              <X size={12} />
+            </button>
           </div>
-          <p className="text-sm font-medium text-slate-600">Upload Product Photo</p>
-          <p className="text-xs text-slate-400 mt-1">Click or drag & drop an image</p>
-        </>
-      )}
+        ))}
+        {value.length < 5 && (
+          <div
+            onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onClick={() => inputRef.current?.click()}
+            className={`relative aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all ${
+              dragOver ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
+            }`}
+          >
+            <Upload size={16} className="text-slate-300" />
+            <span className="text-[10px] text-slate-400 mt-1">{value.length + 1}/5</span>
+          </div>
+        )}
+      </div>
       <input ref={inputRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} className="hidden" />
     </div>
   );
@@ -85,7 +95,7 @@ export default function AdminProductsPage() {
     setForm({
       name: p.name, category: p.category, price: p.price,
       originalPrice: p.originalPrice ? String(p.originalPrice) : '',
-      image: p.image, unit: p.unit, description: p.description,
+      images: p.images || (p.image ? [p.image] : []), unit: p.unit, description: p.description,
       inStock: p.inStock, isFlashSale: p.isFlashSale,
       discount: p.discount ? String(p.discount) : '',
     });
@@ -105,11 +115,11 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const images = form.images.length > 0 ? form.images : ['https://images.unsplash.com/photo-1605294533410-0ec6f3c145e3?w=200&q=80'];
     const payload = {
       name: form.name, category: form.category, price: form.price,
       originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
-      image: form.image || 'https://images.unsplash.com/photo-1605294533410-0ec6f3c145e3?w=200&q=80',
-      unit: form.unit, description: form.description,
+      image: images[0], images, unit: form.unit, description: form.description,
       inStock: form.inStock, isFlashSale: form.isFlashSale,
       discount: form.discount ? Number(form.discount) : null,
     };
@@ -167,7 +177,7 @@ export default function AdminProductsPage() {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-                        <ProductImage image={p.image} name={p.name} className="w-full h-full object-cover" textSize="text-2xl" />
+                        <ProductImage image={p.images?.[0] || p.image} name={p.name} className="w-full h-full object-cover" textSize="text-2xl" />
                       </div>
                       <div>
                         <p className="font-semibold text-slate-800">{p.name}</p>
@@ -225,7 +235,7 @@ export default function AdminProductsPage() {
                     <input required value={form.name} onChange={e => update('name', e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-700 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all bg-white" placeholder="e.g. Premium Ragi" />
                   </div>
 
-                  <ImageUpload value={form.image} onChange={url => update('image', url)} />
+                  <ImageUpload value={form.images} onChange={urls => setForm(prev => ({ ...prev, images: urls }))} />
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1.5">Category</label>

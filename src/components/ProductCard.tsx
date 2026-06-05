@@ -16,6 +16,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
   const { items, addItem, updateQuantity } = useCart();
   const navigate = useNavigate();
   const cartItem = items.find(i => i.product.id === product.id);
+  const mainImage = product.images?.[0] || product.image;
 
   return (
     <motion.div
@@ -31,7 +32,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
         style={{ background: `linear-gradient(135deg, ${product.category === 'millets' ? '#fef3c7' : product.category === 'rice' ? '#fefce8' : product.category === 'flours' ? '#faf5ff' : product.category === 'pulses' ? '#f0fdf4' : product.category === 'seeds' ? '#fff7ed' : '#fef3c7'}, white)` }}
         onClick={() => navigate(`/products/${product.id}`)}
       >
-        <ProductImage image={product.image} name={product.name} className="transition-transform duration-300 group-hover:scale-110" textSize="text-3xl" />
+        <ProductImage image={mainImage} name={product.name} className="transition-transform duration-300 group-hover:scale-110" textSize="text-3xl" />
         {product.isFlashSale && (
           <div className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
             -{product.discount}%

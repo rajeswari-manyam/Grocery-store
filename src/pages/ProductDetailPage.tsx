@@ -11,6 +11,7 @@ import { formatPrice } from '../utils/formatPrice';
 import { SITE_CONFIG } from '../config';
 import { useState } from 'react';
 import ProductImage from '../components/ui/ProductImage';
+import { getProductImages } from '../services/api';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +41,9 @@ export default function ProductDetailPage() {
     );
   }
 
-  const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const productImages = getProductImages(product);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 5);
 
   return (
     <div className="min-h-screen bg-white">
@@ -60,10 +63,29 @@ export default function ProductDetailPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="aspect-square rounded-xl flex items-center justify-center max-w-md"
-              style={{ background: `linear-gradient(135deg, ${product.category === 'millets' ? '#fef3c7' : product.category === 'rice' ? '#fefce8' : '#faf5ff'}, white)` }}
+              className="max-w-md"
             >
-              <ProductImage image={product.image} name={product.name} textSize="text-6xl" />
+              <div
+                className="aspect-square rounded-xl flex items-center justify-center mb-2"
+                style={{ background: `linear-gradient(135deg, ${product.category === 'millets' ? '#fef3c7' : product.category === 'rice' ? '#fefce8' : '#faf5ff'}, white)` }}
+              >
+                <ProductImage image={productImages[selectedImage]} name={product.name} textSize="text-6xl" />
+              </div>
+              {productImages.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {productImages.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedImage(i)}
+                      className={`w-14 h-14 rounded-lg border-2 overflow-hidden flex-shrink-0 cursor-pointer bg-white transition-all ${
+                        selectedImage === i ? 'border-emerald-600' : 'border-slate-200 hover:border-emerald-300'
+                      }`}
+                    >
+                      <ProductImage image={img} name={product.name} className="w-full h-full object-cover" textSize="text-lg" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </motion.div>
 
             <motion.div
