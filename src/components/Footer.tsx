@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-300 mt-20">
       <div className="max-w-7xl mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <img src="/logo.jpeg" alt="MANYAM MART" className="w-8 h-8 rounded-lg object-cover" />
@@ -21,12 +21,6 @@ export default function Footer() {
               <li><span className="cursor-pointer hover:text-white transition-colors">Rice Varieties</span></li>
               <li><span className="cursor-pointer hover:text-white transition-colors">Flours & Powders</span></li>
               <li><span className="cursor-pointer hover:text-white transition-colors">Pulses & Lentils</span></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Company</h4>
-            <ul className="space-y-2 text-sm">
-              <li><span className="cursor-pointer hover:text-white transition-colors">About Us</span></li>
             </ul>
           </div>
           <div>
