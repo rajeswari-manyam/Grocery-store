@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import twilio from 'twilio';
 
 import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
@@ -39,100 +40,65 @@ app.use('/api/profile', profileRoutes);
 const distPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(distPath));
 
-try {
-  const { Client, LocalAuth } = await import('whatsapp-web.js');
-  const qrcode = await import('qrcode-terminal');
+const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
+  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+  : null;
 
-  let client = null;
-  let connected = false;
-  let qrCode = null;
-  let lastError = null;
+const waFrom = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886';
 
-  function initClient() {
-    client = new Client({
-      authStrategy: new LocalAuth(),
-      puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] },
+app.post('/api/whatsapp/send', async (req, res) => {
+  const { to, message } = req.body;
+  if (!to || !message) return res.status(400).json({ error: 'to and message are required' });
+  if (!twilioClient) return res.status(500).json({ error: 'Twilio not configured' });
+  try {
+    const cleaned = to.replace(/\D/g, '');
+    const full = cleaned.length === 10 ? `91${cleaned}` : cleaned;
+    await twilioClient.messages.create({
+      from: waFrom,
+      to: `whatsapp:+${full}`,
+      body: message,
     });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-    client.on('qr', (qr) => {
-      qrCode = qr;
-      connected = false;
-      console.log('\n🔐 WhatsApp QR Code (scan with your phone):');
-      qrcode.default.generate(qr, { small: true });
-    });
+app.post('/api/whatsapp/webhook', async (req, res) => {
+  const text = (req.body.Body || '').toLowerCase().trim();
+  const from = req.body.From || '';
+  const phone = from.replace('whatsapp:', '').replace(/\D/g, '');
 
-    client.on('ready', () => {
-      connected = true;
-      qrCode = null;
-      lastError = null;
-      console.log('✅ WhatsApp client connected!');
-      console.log(`📱 Phone: ${client.info?.pushname || 'Unknown'}`);
-    });
+  let reply;
+  const firstWord = text.split(/[\s!?.]+/)[0];
 
-    client.on('disconnected', (reason) => {
-      connected = false;
-      lastError = `Disconnected: ${reason}`;
-      console.log(`❌ WhatsApp disconnected: ${reason}`);
-      setTimeout(() => {
-        try { client.initialize(); } catch {}
-      }, 10000);
-    });
-
-    client.on('auth_failure', (msg) => {
-      connected = false;
-      lastError = `Auth failure: ${msg}`;
-    });
-
-    client.on('message', async (message) => {
-      const text = message.body.toLowerCase().trim();
-      const from = message.from;
-      try {
-        const firstWord = text.split(/[\s!?.]+/)[0];
-        let reply;
-        if (['hi', 'hello', 'hey', 'hii', 'hy', 'hlo'].includes(firstWord)) {
-          reply = `👋 *Welcome to MANYAM MART!* 🛒\n\nThanks for reaching out! 🙏\n\n🛒 *Browse our catalog:* https://grocery-store-q4eh.onrender.com\n\n👉 *Reply with:* Catalog, Track Order, or Help\n\nHappy shopping! 🎉`;
-        } else if (text === 'help') {
-          reply = `🤖 *MANYAM MART Commands*\n\n👉 *Catalog* — Get the product catalog link\n👉 *Track Order* — Track your order\n👉 *Help* — Show this menu\n\n🛒 Shop online: https://grocery-store-q4eh.onrender.com`;
-        } else if (text === 'catalog' || /\bcatalog\b/.test(text)) {
-          reply = `🛒 *MANYAM MART Catalog*\n\nShop all our products here:\nhttps://grocery-store-q4eh.onrender.com\n\n🌾 Millets | 🍚 Rice | 🌾 Flours\n🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
-        } else if (/^track/.test(text)) {
-          reply = `📦 *Track Your Order*\n\nTo track your order, please visit:\nhttps://grocery-store-q4eh.onrender.com/orders\n\nOr reply with your *order ID* and I'll look it up!`;
-        } else if (/\b(browse|shop|product)\b/.test(text)) {
-          reply = `🛒 *Browse our products:* https://grocery-store-q4eh.onrender.com/products\n\n🌾 Millets | 🍚 Rice | 🌾 Flours\n🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
-        } else {
-          reply = `Hi there! 👋\n\n🛒 *Shop now:* https://grocery-store-q4eh.onrender.com\n\nReply *help* for available commands.`;
-        }
-        await message.reply(reply);
-        console.log(`✅ Replied to ${from}`);
-      } catch (err) {
-        console.error(`❌ Auto-reply failed for ${from}:`, err.message);
-      }
-    });
-
-    client.initialize().catch(err => {
-      console.error('❌ WhatsApp client initialize failed:', err.message);
-      connected = false;
-      lastError = `Init failed: ${err.message}`;
-    });
+  if (['hi', 'hello', 'hey', 'hii', 'hy', 'hlo'].includes(firstWord)) {
+    reply = `👋 *Welcome to MANYAM MART!* 🛒\n\nThanks for reaching out! 🙏\n\n🛒 *Browse our catalog:* https://grocery-store-q4eh.onrender.com\n\n👉 *Reply with:* Catalog, Track Order, or Help\n\nHappy shopping! 🎉`;
+  } else if (text === 'help') {
+    reply = `🤖 *MANYAM MART Commands*\n\n👉 *Catalog* — Get the product catalog link\n👉 *Track Order* — Track your order\n👉 *Help* — Show this menu\n\n🛒 Shop online: https://grocery-store-q4eh.onrender.com`;
+  } else if (text === 'catalog' || /\bcatalog\b/.test(text)) {
+    reply = `🛒 *MANYAM MART Catalog*\n\nShop all our products here:\nhttps://grocery-store-q4eh.onrender.com\n\n🌾 Millets | 🍚 Rice | 🌾 Flours\n🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
+  } else if (/^track/.test(text)) {
+    reply = `📦 *Track Your Order*\n\nTo track your order, please visit:\nhttps://grocery-store-q4eh.onrender.com/orders\n\nOr reply with your *order ID* and I'll look it up!`;
+  } else if (/\b(browse|shop|product)\b/.test(text)) {
+    reply = `🛒 *Browse our products:* https://grocery-store-q4eh.onrender.com/products\n\n🌾 Millets | 🍚 Rice | 🌾 Flours\n🫘 Pulses | 🌰 Seeds | 🍜 Ready Products`;
+  } else {
+    reply = `Hi there! 👋\n\n🛒 *Shop now:* https://grocery-store-q4eh.onrender.com\n\nReply *help* for available commands.`;
   }
 
-  initClient();
+  try {
+    if (twilioClient) {
+      await twilioClient.messages.create({ from: waFrom, to: from, body: reply });
+    }
+    res.send('<Response></Response>');
+  } catch {
+    res.send('<Response></Response>');
+  }
+});
 
-  app.get('/api/status', (_, res) => {
-    res.json({ connected, hasQr: !!qrCode, error: lastError, phone: client?.info?.pushname || null });
-  });
-
-  app.get('/api/qr', (_, res) => {
-    if (qrCode) res.json({ qr: qrCode });
-    else if (connected) res.json({ connected: true });
-    else res.json({ qr: null });
-  });
-} catch {
-  console.log('⚠️ WhatsApp client packages not available — auto-reply disabled.');
-  app.get('/api/status', (_, res) => {
-    res.json({ connected: false, hasQr: false, error: null, phone: null });
-  });
-}
+app.get('/api/status', (_, res) => {
+  res.json({ connected: !!twilioClient, hasQr: false, error: null, phone: null });
+});
 
 app.get('*', (_, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
@@ -165,5 +131,6 @@ app.listen(PORT, () => {
   console.log(`   PUT    /api/profile/addresses/:id`);
   console.log(`   DELETE /api/profile/addresses/:id`);
   console.log(`   GET    /api/status`);
-  console.log(`   GET    /api/qr`);
+  console.log(`   POST   /api/whatsapp/send`);
+  console.log(`   POST   /api/whatsapp/webhook`);
 });
