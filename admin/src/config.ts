@@ -1,6 +1,5 @@
 export const SITE_CONFIG = {
   businessWhatsApp: '8125024999',
-  businessOwnerWhatsApp: '7095652428',
   siteUrl: 'https://grocery-store-q4eh.onrender.com',
   siteName: 'MANYAM MART',
   backendUrl: 'https://backend-ddr6.onrender.com',
