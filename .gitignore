@@ -1,8 +1,5 @@
 node_modules
 dist
 *.local
-<<<<<<< HEAD
-
-=======
->>>>>>> cc6aa8eedeb92957d9fb05d32d6a355e5a402f2e
+.env
 .vercel
