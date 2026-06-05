@@ -62,13 +62,13 @@ export function FeaturedProductsSection() {
           animate={controls}
           initial="hidden"
         >
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Popular Grains</h2>
+              <h2 className="text-xl font-bold text-slate-900">Popular Grains</h2>
               <p className="text-sm text-slate-400">Most ordered millets and staples this week</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {featured.map((product, i) => (
               <ProductCard key={product.id} product={product} index={i} />
             ))}
