@@ -72,12 +72,7 @@ function OrderCard({ order }: { order: Order }) {
       .map(s => `✓ ${s.label}${s.time ? ` at ${s.time}` : ''}`)
       .join('\n');
 
-    const result = await sendTrackingToBusiness(order.id, timelineText);
-    if (!result.sent) {
-      alert('📨 WhatsApp system is offline. The tracking info has been queued and will be sent automatically when the system is back online.');
-    } else {
-      alert('✅ Tracking info sent to your WhatsApp!');
-    }
+    await sendTrackingToBusiness(order.id, timelineText);
   };
 
   const formatDate = (iso: string) => {
@@ -270,12 +265,7 @@ export default function OrdersPage() {
       .map(s => `✓ ${s.label}${s.time ? ` at ${s.time}` : ''}`)
       .join('\n');
 
-    const result = await sendTrackingToBusiness(order.id, timelineText);
-    if (!result.sent) {
-      alert('📨 WhatsApp system is offline. The tracking info has been queued and will be sent automatically when the system is back online.');
-    } else {
-      alert('✅ Tracking info sent to your WhatsApp!');
-    }
+    await sendTrackingToBusiness(order.id, timelineText);
   };
 
   return (

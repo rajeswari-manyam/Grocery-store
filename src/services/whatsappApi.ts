@@ -1,118 +1,16 @@
 import { SITE_CONFIG } from '../config';
 
-const BACKEND_URLS = [SITE_CONFIG.backendUrl, SITE_CONFIG.localBackendUrl];
-const PENDING_QUEUE_KEY = 'manyam_pending_whatsapp';
-
-async function checkBackend(url: string): Promise<boolean> {
-  try {
-    const res = await fetch(`${url}/api/status`, { signal: AbortSignal.timeout(2000) });
-    const data = await res.json();
-    return data.connected === true;
-  } catch {
-    return false;
-  }
-}
-
-export async function isBackendAvailable(): Promise<boolean> {
-  for (const url of BACKEND_URLS) {
-    if (await checkBackend(url)) return true;
-  }
-  return false;
-}
-
-function getPendingQueue(): { to: string; message: string; reason: string }[] {
-  try {
-    return JSON.parse(localStorage.getItem(PENDING_QUEUE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function savePendingQueue(queue: { to: string; message: string; reason: string }[]): void {
-  localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(queue));
-}
-
-export function getPendingCount(): number {
-  return getPendingQueue().length;
-}
-
-export function queuePendingMessage(to: string, message: string, reason: string): void {
-  const queue = getPendingQueue();
-  queue.push({ to, message, reason });
-  savePendingQueue(queue);
-  console.log(`[WA] Queued message for ${to} (${reason}). Total pending: ${queue.length}`);
-}
-
-export async function flushPendingMessages(): Promise<number> {
-  const queue = getPendingQueue();
-  if (queue.length === 0) return 0;
-
-  const available = await isBackendAvailable();
-  if (!available) return 0;
-
-  let sent = 0;
-  for (const item of queue) {
-    for (const url of BACKEND_URLS) {
-      try {
-        const res = await fetch(`${url}/api/send-whatsapp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to: item.to, message: item.message }),
-        });
-        if (res.ok) {
-          sent++;
-          console.log(`[WA] Flushed pending message to ${item.to} via ${url}`);
-          break;
-        }
-      } catch {}
-    }
-    if (!sent) console.error(`[WA] Flush failed for ${item.to}`);
-  }
-
-  const remaining = queue.slice(sent);
-  savePendingQueue(remaining);
-  console.log(`[WA] Flushed ${sent}/${sent + remaining.length} pending messages`);
-  return sent;
-}
-
-async function trySend(to: string, message: string): Promise<boolean> {
-  for (const url of BACKEND_URLS) {
-    try {
-      const res = await fetch(`${url}/api/send-whatsapp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to, message }),
-      });
-      if (res.ok) return true;
-    } catch {}
-  }
-  return false;
+function openWhatsApp(phone: string, message: string): boolean {
+  const cleaned = phone.replace(/\D/g, '');
+  const fullPhone = cleaned.length === 10 ? `91${cleaned}` : cleaned;
+  const url = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+  return true;
 }
 
 export async function sendWhatsAppMessage(to: string, message: string): Promise<{ sent: boolean; method: 'backend' | 'queued' }> {
-  for (let i = 0; i < 5; i++) {
-    const up = await isBackendAvailable();
-    if (up) {
-      const ok = await trySend(to, message);
-      if (ok) {
-        console.log(`[WA] Message sent via backend to +${to.replace(/\D/g, '')}`);
-        await flushPendingMessages();
-        return { sent: true, method: 'backend' };
-      }
-    }
-    if (i < 4) await new Promise(r => setTimeout(r, 1000));
-  }
-
-  queuePendingMessage(to, message, 'auto-send');
-  console.log(`[WA] Queued message for +${to.replace(/\D/g, '')}`);
-  return { sent: false, method: 'queued' };
-}
-
-export function startFlushInterval(intervalMs = 15000): ReturnType<typeof setInterval> {
-  return setInterval(async () => {
-    const sent = await flushPendingMessages();
-    if (sent > 0) console.log(`[WA] Auto-flush sent ${sent} message(s)`);
-  }, intervalMs);
+  const ok = openWhatsApp(to, message);
+  return { sent: ok, method: 'backend' };
 }
 
 export async function notifyBusinessOrder(order: {
