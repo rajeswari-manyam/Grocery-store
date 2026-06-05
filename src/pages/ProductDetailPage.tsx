@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ShoppingCart, Minus, Plus, Share2, Shield, Truck, Zap } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Minus, Plus, Share2, Shield, Truck, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartDrawer from '../components/CartDrawer';
@@ -65,23 +65,37 @@ export default function ProductDetailPage() {
               transition={{ duration: 0.5 }}
               className="max-w-md"
             >
-              <div
-                className="aspect-square rounded-xl flex items-center justify-center mb-2"
+              <div className="relative aspect-square rounded-xl flex items-center justify-center mb-2 group"
                 style={{ background: `linear-gradient(135deg, ${product.category === 'millets' ? '#fef3c7' : product.category === 'rice' ? '#fefce8' : '#faf5ff'}, white)` }}
               >
                 <ProductImage image={productImages[selectedImage]} name={product.name} textSize="text-6xl" />
+                {productImages.length > 1 && (
+                  <>
+                    <button onClick={() => setSelectedImage(i => (i - 1 + productImages.length) % productImages.length)} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all border-none cursor-pointer">
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button onClick={() => setSelectedImage(i => (i + 1) % productImages.length)} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-700 flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all border-none cursor-pointer">
+                      <ChevronRight size={16} />
+                    </button>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                      {productImages.map((_, i) => (
+                        <button key={i} onClick={() => setSelectedImage(i)} className={`w-1.5 h-1.5 rounded-full border-none cursor-pointer transition-all ${selectedImage === i ? 'bg-white w-3' : 'bg-white/50'}`} />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
               {productImages.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="flex gap-2 overflow-x-auto pb-1 justify-center">
                   {productImages.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setSelectedImage(i)}
-                      className={`w-14 h-14 rounded-lg border-2 overflow-hidden flex-shrink-0 cursor-pointer bg-white transition-all ${
+                      className={`w-12 h-12 rounded-lg border-2 overflow-hidden flex-shrink-0 cursor-pointer bg-white transition-all ${
                         selectedImage === i ? 'border-emerald-600' : 'border-slate-200 hover:border-emerald-300'
                       }`}
                     >
-                      <ProductImage image={img} name={product.name} className="w-full h-full object-cover" textSize="text-lg" />
+                      <ProductImage image={img} name={product.name} className="w-full h-full object-cover" textSize="text-base" />
                     </button>
                   ))}
                 </div>
