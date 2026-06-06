@@ -1,6 +1,5 @@
-import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { LogIn, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { ProfileProvider } from './context/ProfileContext';
 import { ProductProvider } from './context/ProductContext';
@@ -9,6 +8,7 @@ import { LocationProvider } from './context/LocationContext';
 import ScrollToTop from './components/ScrollToTop';
 import WhatsAppButton from './components/WhatsAppButton';
 import LocationPrompt from './components/LocationPrompt';
+import LoginPrompt from './components/LoginPrompt';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -22,12 +22,13 @@ function AppContent() {
   const { isLoggedIn } = useAuth();
   const loc = useLocation();
   const isLoginPage = loc.pathname === '/login';
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   return (
     <>
       <ScrollToTop />
       <LocationPrompt />
-      {!isLoginPage && <WhatsAppButton />}
+      <WhatsAppButton />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products" element={<ProductsPage />} />
@@ -40,29 +41,14 @@ function AppContent() {
       </Routes>
 
       {!isLoggedIn && !isLoginPage && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6"
-        >
-          <div className="w-20 h-20 rounded-2xl bg-emerald-100 flex items-center justify-center mb-6">
-            <ShoppingBag size={36} className="text-emerald-700" />
-          </div>
-
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">MANYAM MART</h1>
-          <p className="text-sm text-slate-500 mb-8 text-center max-w-xs">
-            Log in to explore our products and place orders.
-          </p>
-
-          <Link
-            to="/login"
-            className="w-full max-w-xs py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
-          >
-            <LogIn size={16} />
-            Login to Continue
-          </Link>
-        </motion.div>
+        <div
+          onClick={() => setShowLoginPrompt(true)}
+          className={`fixed inset-0 z-40 cursor-default ${showLoginPrompt ? 'pointer-events-none' : ''}`}
+          style={{ backgroundColor: 'transparent' }}
+        />
       )}
+
+      <LoginPrompt open={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
     </>
   );
 }
