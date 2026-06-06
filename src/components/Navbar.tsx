@@ -192,17 +192,19 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
               </button>
             )}
 
-            <button
-              onClick={onCartOpen}
-              className="relative p-2.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all bg-transparent border-none cursor-pointer"
-            >
-              <ShoppingCart size={18} />
-              {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
-                  {totalItems > 99 ? '99+' : totalItems}
-                </span>
-              )}
-            </button>
+            {isLoggedIn && (
+              <button
+                onClick={onCartOpen}
+                className="relative p-2.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all bg-transparent border-none cursor-pointer"
+              >
+                <ShoppingCart size={18} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </span>
+                )}
+              </button>
+            )}
 
             <button
               className="md:hidden p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-all bg-transparent border-none cursor-pointer"
@@ -274,10 +276,12 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
 
               <div className="flex-1 overflow-y-auto px-4 py-4">
                 {[
-                  { label: 'Home', href: '/', icon: null },
-                  { label: 'Shop All', href: '/products', icon: null },
-                  { label: 'My Orders', href: '/orders', icon: null },
-                  { label: 'Cart', href: '/cart', icon: null },
+                  { label: 'Home', href: '/', icon: null as string | null },
+                  ...(isLoggedIn ? [
+                    { label: 'Shop All', href: '/products', icon: null as string | null },
+                    { label: 'My Orders', href: '/orders', icon: null as string | null },
+                    { label: 'Cart', href: '/cart', icon: null as string | null },
+                  ] : []),
                   ...(isLoggedIn
                     ? [{ label: 'Profile', href: '/profile', icon: 'profile' as const }]
                     : [{ label: 'Login', href: '/login', icon: 'profile' as const }]
