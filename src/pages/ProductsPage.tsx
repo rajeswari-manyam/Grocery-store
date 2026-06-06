@@ -161,7 +161,7 @@ export default function ProductsPage() {
             <div className="flex-1">
               {filtered.length === 0 ? (
                 <EmptyState
-                  title="No products found"
+                  title={debouncedSearch ? `No results for "${debouncedSearch}"` : 'No products found'}
                   subtitle="Try adjusting your search or filter to find what you're looking for."
                   action={{ label: 'Clear Filters', onClick: () => { setSearchInput(''); setSelectedCategory('all'); setSortBy('default'); } }}
                 />

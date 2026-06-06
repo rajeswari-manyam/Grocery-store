@@ -44,3 +44,8 @@ export function remove(req, res) {
   if (!deleted) return res.status(404).json({ error: 'Product not found' });
   res.json({ success: true });
 }
+
+export function clearAll(req, res) {
+  store.clearAllProducts();
+  res.json({ success: true, message: 'All products cleared' });
+}
