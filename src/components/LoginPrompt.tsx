@@ -25,7 +25,7 @@ export default function LoginPrompt({ open, onClose }: LoginPromptProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             onClick={e => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center relative"
           >
             <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full hover:bg-slate-100 bg-transparent border-none cursor-pointer">
               <X size={18} className="text-slate-400" />
@@ -47,12 +47,6 @@ export default function LoginPrompt({ open, onClose }: LoginPromptProps) {
               Login Now
             </button>
 
-            <button
-              onClick={onClose}
-              className="w-full py-2.5 mt-2 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition-all bg-transparent border-none cursor-pointer"
-            >
-              Browse as Guest
-            </button>
           </motion.div>
         </motion.div>
       )}

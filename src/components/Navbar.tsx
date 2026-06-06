@@ -275,9 +275,14 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
               <div className="flex-1 overflow-y-auto px-4 py-4">
                 {[
                   { label: 'Home', href: '/', icon: null as string | null },
-                  { label: 'Shop All', href: '/products', icon: null as string | null },
-                  { label: 'My Orders', href: '/orders', icon: null as string | null },
-                  { label: 'Cart', href: '/cart', icon: null as string | null },
+                  ...(isLoggedIn
+                    ? [
+                        { label: 'Shop All', href: '/products', icon: null as string | null },
+                        { label: 'My Orders', href: '/orders', icon: null as string | null },
+                        { label: 'Cart', href: '/cart', icon: null as string | null },
+                      ]
+                    : []
+                  ),
                   ...(isLoggedIn
                     ? [{ label: 'Profile', href: '/profile', icon: 'profile' as const }]
                     : [{ label: 'Login', href: '/login', icon: 'profile' as const }]

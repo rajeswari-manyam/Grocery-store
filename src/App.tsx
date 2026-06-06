@@ -6,7 +6,6 @@ import { ProductProvider } from './context/ProductContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LocationProvider } from './context/LocationContext';
 import ScrollToTop from './components/ScrollToTop';
-import WhatsAppButton from './components/WhatsAppButton';
 import LocationPrompt from './components/LocationPrompt';
 import LoginPrompt from './components/LoginPrompt';
 import HomePage from './pages/HomePage';
@@ -28,7 +27,6 @@ function AppContent() {
     <>
       <ScrollToTop />
       <LocationPrompt />
-      <WhatsAppButton />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products" element={<ProductsPage />} />

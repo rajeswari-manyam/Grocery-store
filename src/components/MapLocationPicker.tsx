@@ -165,7 +165,7 @@ export default function MapLocationPicker({ open, onClose, onConfirm }: MapLocat
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
           onClick={onClose}
         >
           <motion.div
@@ -173,35 +173,35 @@ export default function MapLocationPicker({ open, onClose, onConfirm }: MapLocat
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             onClick={e => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col relative"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm max-h-[80vh] overflow-hidden flex flex-col relative"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-2">
-              <h2 className="text-lg font-bold text-slate-900">Set Your Location</h2>
-              <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 bg-transparent border-none cursor-pointer">
-                <span className="text-lg">✕</span>
+            <div className="flex items-center justify-between px-4 pt-4 pb-1">
+              <h2 className="text-base font-bold text-slate-900">Set Your Location</h2>
+              <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 bg-transparent border-none cursor-pointer">
+                <span className="text-base">✕</span>
               </button>
             </div>
 
             {/* Search bar */}
-            <div className="px-5 pb-3">
+            <div className="px-4 pb-2">
               <div
                 onClick={() => setShowSearch(true)}
-                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-slate-100 text-sm text-slate-500 cursor-pointer"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 text-sm text-slate-500 cursor-pointer"
               >
-                <Search size={16} className="text-slate-400" />
-                <span>Search for area, street, landmark...</span>
+                <Search size={14} className="text-slate-400" />
+                <span className="text-xs">Search for area, street, landmark...</span>
               </div>
             </div>
 
             {/* Map area */}
-            <div className="relative flex-1 min-h-[280px]">
+            <div className="relative flex-1 min-h-[200px]">
               {loading ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-100 z-10">
                   <Loader2 size={32} className="text-emerald-600 animate-spin" />
                 </div>
               ) : (
-                <MapContainer center={center} zoom={17} className="w-full h-full min-h-[280px] z-0" scrollWheelZoom={true} zoomControl={false}>
+                <MapContainer center={center} zoom={17} className="w-full h-full min-h-[200px] z-0" scrollWheelZoom={true} zoomControl={false}>
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -237,7 +237,7 @@ export default function MapLocationPicker({ open, onClose, onConfirm }: MapLocat
             </div>
 
             {/* Bottom section */}
-            <div className="px-5 pt-3 pb-5 border-t border-slate-100 space-y-3">
+            <div className="px-4 pt-2 pb-4 border-t border-slate-100 space-y-2">
               {resolving ? (
                 <div className="flex items-center gap-2 text-sm text-slate-400">
                   <Loader2 size={14} className="animate-spin" />
