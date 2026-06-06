@@ -5,8 +5,16 @@
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
   }
   *:focus:not(:focus-visible) {
     outline: none;
+  }
+  input, textarea, [contenteditable] {
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
   }
 }
