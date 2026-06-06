@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Lock, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useProfile } from '../context/ProfileContext';
+import MapLocationPicker from '../components/MapLocationPicker';
 import { SITE_CONFIG } from '../config';
 
 export default function LoginPage() {
@@ -12,10 +14,26 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otpError, setOtpError] = useState('');
+  const [showMap, setShowMap] = useState(false);
   const { login } = useAuth();
+  const { addAddress } = useProfile();
   const navigate = useNavigate();
   const loc = useLocation();
   const from = (loc.state as any)?.from || '/';
+
+  const handleMapConfirm = (data: { address: string; city: string; pincode: string; lat: number; lng: number }) => {
+    addAddress({
+      label: 'Home',
+      name: '',
+      phone,
+      line1: data.address,
+      line2: '',
+      city: data.city,
+      pincode: data.pincode,
+      isDefault: true,
+    });
+    navigate(from, { replace: true });
+  };
 
   const sendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +86,7 @@ export default function LoginPage() {
     }
     login(phone);
     setLoading(false);
-    navigate(from, { replace: true });
+    setShowMap(true);
   };
 
   return (
@@ -192,6 +210,12 @@ export default function LoginPage() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      <MapLocationPicker
+        open={showMap}
+        onClose={() => navigate(from, { replace: true })}
+        onConfirm={handleMapConfirm}
+      />
     </div>
   );
 }

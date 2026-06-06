@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, MapPin, Plus, Pencil, Trash2, Check, Package, LogOut, ChevronRight, Star } from 'lucide-react';
+import { User, MapPin, Plus, Pencil, Trash2, Check, Package, LogOut, ChevronRight, Star, Locate } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartDrawer from '../components/CartDrawer';
+import MapLocationPicker from '../components/MapLocationPicker';
 import { useProfile, type Address } from '../context/ProfileContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const [form, setForm] = useState({ name: user?.name || profile.name, phone: user?.phone || profile.phone, email: user?.email || profile.email });
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(false);
   const [addrForm, setAddrForm] = useState({ label: '', line1: '', line2: '', city: '', pincode: '', isDefault: false, name: '', phone: '' });
 
   const saveProfile = () => {
@@ -51,6 +53,10 @@ export default function ProfilePage() {
     }
     setShowAddressForm(false);
     setEditingAddress(null);
+  };
+
+  const handleMapConfirm = (data: { address: string; city: string; pincode: string }) => {
+    setAddrForm(f => ({ ...f, line1: data.address, city: data.city, pincode: data.pincode }));
   };
 
   const displayName = user?.name || profile.name || 'User';
@@ -216,7 +222,13 @@ export default function ProfilePage() {
                       <span className="text-sm text-slate-600">Set as default address</span>
                     </label>
                   </div>
-                  <div className="flex items-center gap-3 mt-3">
+                    <div className="flex items-center gap-3 mt-3">
+                      <button
+                        onClick={() => setShowMap(true)}
+                        className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-emerald-200 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition-all bg-transparent cursor-pointer"
+                      >
+                        <Locate size={15} /> Map
+                      </button>
                     <button onClick={() => { setShowAddressForm(false); setEditingAddress(null); }} className="flex-1 px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all bg-white cursor-pointer">Cancel</button>
                     <button onClick={saveAddress} disabled={!addrForm.label || !addrForm.line1 || !addrForm.city || !addrForm.pincode} className="flex-1 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold transition-all disabled:opacity-40 border-none cursor-pointer">
                       {editingAddress ? 'Update' : 'Save'} Address
@@ -242,6 +254,11 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+      <MapLocationPicker
+        open={showMap}
+        onClose={() => setShowMap(false)}
+        onConfirm={handleMapConfirm}
+      />
       <Footer />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
