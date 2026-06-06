@@ -5,6 +5,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocation as useLocationCtx, FALLBACK_CITIES } from '../context/LocationContext';
+import LoginPrompt from './LoginPrompt';
+
+const PROTECTED_ROUTES = ['/products', '/cart', '/orders', '/profile', '/checkout'];
 
 export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
   const [scrolled, setScrolled] = useState(false);
@@ -13,6 +16,7 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationSearch, setLocationSearch] = useState('');
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const locationRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const routeLocation = useLocation();
@@ -37,6 +41,11 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
   }, []);
 
   const goTo = (href: string) => {
+    const path = href.split('?')[0];
+    if (!isLoggedIn && PROTECTED_ROUTES.some(r => path.startsWith(r))) {
+      setShowLoginPrompt(true);
+      return;
+    }
     navigate(href);
     setMobileOpen(false);
   };
@@ -136,7 +145,7 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-md">
             <form
-              onSubmit={(e) => { e.preventDefault(); if (searchQuery.trim()) { navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`); setSearchOpen(false); setSearchQuery(''); } }}
+              onSubmit={(e) => { e.preventDefault(); if (searchQuery.trim()) { goTo(`/products?search=${encodeURIComponent(searchQuery.trim())}`); setSearchOpen(false); setSearchQuery(''); } }}
               className="w-full"
             >
               <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2 border border-slate-200 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 transition-all">
@@ -213,7 +222,7 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
               className="border-t border-slate-100 bg-white overflow-hidden md:hidden"
             >
               <form
-                onSubmit={(e) => { e.preventDefault(); if (searchQuery.trim()) { navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`); setSearchOpen(false); setSearchQuery(''); } }}
+                onSubmit={(e) => { e.preventDefault(); if (searchQuery.trim()) { goTo(`/products?search=${encodeURIComponent(searchQuery.trim())}`); setSearchOpen(false); setSearchQuery(''); } }}
                 className="px-4 py-3"
               >
                 <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-2.5 border border-slate-200 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 transition-all">
@@ -309,6 +318,8 @@ export default function Navbar({ onCartOpen }: { onCartOpen: () => void }) {
           </>
         )}
       </AnimatePresence>
+
+      <LoginPrompt open={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
     </>
   );
 }
