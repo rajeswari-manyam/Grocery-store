@@ -13,6 +13,10 @@ const categories = [
   { id: 'pulses', name: 'Pulses & Lentils', icon: '🫘' },
   { id: 'seeds', name: 'Seeds & Health Add-Ons', icon: '🌰' },
   { id: 'ready', name: 'Ready Products', icon: '🍜' },
+    { id: 'grocery-staples', name: 'Grocery & Staples', icon: '🛒' },
+  { id: 'spices-oils', name: 'Spices & Oils', icon: '🧂' },
+  { id: 'grains-processed', name: 'Grains & Processed Foods', icon: '🌾' },
+
 ];
 
 interface FormProduct {

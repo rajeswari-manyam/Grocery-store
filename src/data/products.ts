@@ -27,6 +27,9 @@ export const categories: Category[] = [
   { id: 'pulses', name: 'Pulses & Lentils', icon: '🫘', color: '#8b5cf6' },
   { id: 'seeds', name: 'Seeds & Health Add-Ons', icon: '🌰', color: '#10b981' },
   { id: 'ready', name: 'Ready Products', icon: '🍜', color: '#f97316' },
+  { id: 'grocery-staples', name: 'Grocery & Staples', icon: '🛒', color: '#6b7280' },
+  { id: 'spices-oils', name: 'Spices & Oils', icon: '🧂', color: '#ef4444' },
+  { id: 'grains-processed', name: 'Grains & Processed Foods', icon: '🌾', color: '#a16207' },
 ];
 
 export const products: Product[] = [

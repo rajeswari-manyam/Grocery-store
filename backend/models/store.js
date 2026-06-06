@@ -55,6 +55,10 @@ function load() {
       data = JSON.parse(raw);
       if (!data.products || !data.orders || !data.users) throw new Error('Invalid schema');
       data.products = normalizeProducts(data.products);
+      if (data.products.length === 0) {
+        data.products = normalizeProducts([...defaultProducts]);
+        save();
+      }
     } else {
       throw new Error('No data file');
     }
